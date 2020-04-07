@@ -1,0 +1,62 @@
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}
+
+// https://css-tricks.com/books/volume-i/scale-typography-screen-size/
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+  $u1: unit($min-vw);
+  $u2: unit($max-vw);
+  $u3: unit($min-font-size);
+  $u4: unit($max-font-size);
+
+  @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+    & {
+      font-size: $min-font-size;
+
+      @media screen and (min-width: $min-vw) {
+        font-size: calc(
+          #{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} *
+            ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})
+        );
+      }
+
+      @media screen and (min-width: $max-vw) {
+        font-size: $max-font-size;
+      }
+    }
+  }
+}
+
+@mixin hairline-border($color: rgba(0, 0, 0, 0.25)) {
+  box-shadow: 0 0 0 1px $color;
+
+  @media (min-resolution: 2dppx) {
+    box-shadow: 0 0 0 0.5px $color;
+  }
+
+  @media (min-resolution: 3dppx) {
+    box-shadow: 0 0 0 0.33333333px $color;
+  }
+
+  @media (min-resolution: 4dppx) {
+    box-shadow: 0 0 0 0.25px $color;
+  }
+}
+
+@mixin hairline-bottom($color: rgba(0, 0, 0, 0.25)) {
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-color: $color;
+
+  @media (min-resolution: 2dppx) {
+    border-bottom-width: 0.5px;
+  }
+
+  @media (min-resolution: 3dppx) {
+    border-bottom-width: 0.33333333px;
+  }
+
+  @media (min-resolution: 4dppx) {
+    border-bottom-width: 0.25;
+  }
+}
