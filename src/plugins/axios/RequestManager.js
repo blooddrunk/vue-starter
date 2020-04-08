@@ -36,10 +36,10 @@ export default class RequestManager {
   }
 
   log(message) {
-    const { debug, logger } = this.options;
+    const { logger } = this.options;
     const prefix = '[RequestManager]: ';
 
-    if (debug) {
+    if (logger) {
       logger(`${prefix}${message}`);
     }
   }

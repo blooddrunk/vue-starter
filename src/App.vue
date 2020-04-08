@@ -1,32 +1,15 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view />
-  </div>
+  <main class="tw-min-h-screen tw-p-6 tw-bg-teal-100">
+    <section class="tw-flex tw-flex-col tw-items-center tw-pt-20">
+      <router-link to="/">
+        <h2 class="tw-py-5 tw-text-3xl tw-text-indigo-500 tw-font-bold">
+          Examples
+        </h2>
+      </router-link>
+
+      <div class="tw-container">
+        <router-view></router-view>
+      </div>
+    </section>
+  </main>
 </template>
-
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>

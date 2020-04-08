@@ -1,12 +1,14 @@
 import Axios from 'axios';
-import merge from 'lodash/merge';
+import defaultsDeep from 'lodash/defaultsDeep';
+import consola from 'consola';
 
-const isDev = process.env_NODE_ENV;
-const apiRoot = process.env.VUE_APP_API_ROOT;
-const apiPrefix = process.env.VUE_APP_API_PREFIX;
+const isDev = process.env.NODE_ENV === 'development';
 
 // stolen from nuxt-axios https://github.com/nuxt-community/axios-module
 const axiosExtra = {
+  setBaseURL(baseURL) {
+    this.defaults.baseURL = baseURL;
+  },
   setHeader(name, value, scopes = 'common') {
     for (let scope of Array.isArray(scopes) ? scopes : [scopes]) {
       if (!value) {
@@ -41,9 +43,13 @@ const axiosExtra = {
   onError(fn) {
     this.onRequestError(fn);
     this.onResponseError(fn);
+  },
+  create(options) {
+    return createAxiosInstance(defaultsDeep(options, this.defaults));
   }
 };
 
+// Request helpers ($get, $post, ...)
 for (let method of [
   'request',
   'delete',
@@ -65,11 +71,29 @@ const extendAxiosInstance = axios => {
   }
 };
 
-const setupDebugInterceptor = async axios => {
-  const consola = await import('consola');
+const createAxiosInstance = axiosOptions => {
+  // Create new axios instance
+  const axios = Axios.create(axiosOptions);
+  axios.CancelToken = Axios.CancelToken;
+  axios.isCancel = Axios.isCancel;
 
-  axios.onError(error => {
-    consola.error(error);
+  // Extend axios proto
+  extendAxiosInstance(axios);
+
+  if (isDev) {
+    setupDebugInterceptor(axios);
+  }
+
+  return axios;
+};
+
+const setupDebugInterceptor = axios => {
+  axios.onRequestError(error => {
+    consola.error('Request error:', error);
+  });
+
+  axios.onResponseError(error => {
+    consola.error('error', 'Response error:', error);
   });
 
   axios.onResponse(res => {
@@ -85,33 +109,26 @@ const setupDebugInterceptor = async axios => {
   });
 };
 
-const headers = {
-  common: {
-    Accept: 'application/json, text/plain, */*'
-  },
-  delete: {},
-  get: {},
-  head: {},
-  post: {},
-  put: {},
-  patch: {}
-};
+export const createEnhancedAxiosInstance = extraOptions => {
+  const headers = {
+    common: {
+      Accept: 'application/json, text/plain, */*'
+    },
+    delete: {},
+    get: {},
+    head: {},
+    post: {},
+    put: {},
+    patch: {}
+  };
 
-const axiosOptions = {
-  baseURL: `${apiRoot}${apiPrefix}/`.replace(/\/\//g, '/'),
-  headers
-};
+  const axiosOptions = {
+    headers
+  };
 
-const configureAxios = config => {
-  const axios = Axios.create(merge(axiosOptions, config));
-
-  extendAxiosInstance(axios);
-
-  if (isDev) {
-    setupDebugInterceptor(axios);
-  }
+  const axios = createEnhancedAxiosInstance(
+    defaultsDeep(extraOptions, axiosOptions)
+  );
 
   return axios;
 };
-
-export default configureAxios;
