@@ -13,3 +13,17 @@
     </section>
   </main>
 </template>
+
+<script>
+import { defineComponent } from 'vue';
+
+import { provideAxios } from '@/context/axios';
+
+export default defineComponent({
+  name: 'App',
+
+  setup() {
+    provideAxios();
+  },
+});
+</script>

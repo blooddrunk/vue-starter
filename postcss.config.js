@@ -3,14 +3,32 @@ const { join } = require('path');
 const isDev = process.env.NODE_ENV === 'development';
 const tailwindConfig = join(__dirname, 'tailwind.config.js');
 
+// https://github.com/nuxt/nuxt.js/blob/ed564c3bd8/packages/webpack/src/utils/postcss.js
 const plugins = {
-  tailwindcss: tailwindConfig
+  // https://github.com/tailwindcss/tailwindcss
+  tailwindcss: tailwindConfig,
+
+  // https://github.com/postcss/postcss-import
+  'postcss-import': {},
+
+  // https://github.com/postcss/postcss-url
+  'postcss-url': {},
+
+  // https://github.com/csstools/postcss-preset-env
+  // defaults to stage 2
+  'postcss-preset-env': {},
+
+  // https://github.com/cssnano/cssnano
+  cssnano: isDev ? false : { preset: 'default' },
 };
 
 if (!isDev) {
   plugins['@fullhuman/postcss-purgecss'] = {
     content: [`./public/**/*.html`, `./src/**/*.vue`],
+
+    // FIXME: not working
     css: ['src/assets/css/tailwind.css'],
+
     defaultExtractor(content) {
       const contentWithoutStyleBlocks = content.replace(
         /<style[^]+?<\/style>/gi,
@@ -26,11 +44,11 @@ if (!isDev) {
       /-(leave|enter|appear)(|-(to|from|active))$/,
       /^(?!(|.*?:)cursor-move).+-move$/,
       /^router-link(|-exact)-active$/,
-      /data-v-.*/
-    ]
+      /data-v-.*/,
+    ],
   };
 }
 
 module.exports = {
-  plugins
+  plugins,
 };

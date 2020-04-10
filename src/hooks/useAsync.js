@@ -1,7 +1,16 @@
-// import useAsyncFn from './useAsyncFn';
+import useAsyncFn from './useAsyncFn';
+import { useAxios } from '@/context/axios';
 
-// export default (fn, initialData) => {
-//   const { fetch, ...state } = useAsyncFn(fn ,initialData)
+export default (url, requestConfig, initialData) => {
+  if (typeof url !== 'string') {
+    requestConfig = url;
+    initialData = requestConfig;
+  } else {
+    requestConfig = requestConfig || {};
+    requestConfig.url = url;
+  }
 
-//   watch
-// }
+  const axios = useAxios();
+
+  return useAsyncFn(() => axios(requestConfig), initialData);
+};

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="listState.loading">Loading...</div>
+    <div v-if="loading">Loading...</div>
     <ul v-else>
       <li v-for="item in items" :key="item[itemKey]">
         <a class="hover:tw-underline" :href="item.url" target="_blank">
@@ -18,13 +18,18 @@ export default {
   props: {
     items: {
       type: Array,
-      default: () => []
+      default: () => [],
+    },
+
+    loading: {
+      type: Boolean,
+      default: false,
     },
 
     itemKey: {
       type: String,
-      default: 'objectID'
-    }
-  }
+      default: 'objectID',
+    },
+  },
 };
 </script>

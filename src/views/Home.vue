@@ -21,9 +21,9 @@ export default {
     menuList: [
       {
         text: 'Simple list',
-        to: '/simple-list'
-      }
-    ]
-  })
+        to: '/simple-list',
+      },
+    ],
+  }),
 };
 </script>

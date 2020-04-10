@@ -1,23 +1,24 @@
 import { reactive, toRefs } from 'vue';
 
-export default (fn, initialData) => {
+export default (fn, initialData = null) => {
   const state = reactive({
     loading: false,
     error: null,
-    data: initialData
+    data: initialData,
   });
 
   let lastPromise;
-  const fetch = async (...args) => {
+  const fetchData = async (...args) => {
     state.error = null;
     state.loading = true;
 
-    const promise = (lastPromise = fn(...args));
-
     try {
+      const promise = (lastPromise = fn(...args));
+
       const result = await promise;
+
       if (lastPromise === promise) {
-        state.result = result;
+        state.data = result;
       }
     } catch (e) {
       state.error = e;
@@ -28,6 +29,6 @@ export default (fn, initialData) => {
 
   return {
     ...toRefs(state),
-    fetch
+    fetchData,
   };
 };

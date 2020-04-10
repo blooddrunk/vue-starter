@@ -2,10 +2,10 @@ import { CancelToken } from 'axios';
 
 import RequestManager from './RequestManager';
 
-export const takeLatest = axios => {
+export const takeLatest = (axios) => {
   let source;
 
-  const cancellableCall = config => {
+  const cancellableCall = (config) => {
     if (source) {
       source.cancel(`[${config.url}]: Only one request allowed at a time.`);
     }
@@ -15,7 +15,7 @@ export const takeLatest = axios => {
 
     return axios({
       ...config,
-      cancelToken: source.token
+      cancelToken: source.token,
     });
   };
 
@@ -37,7 +37,7 @@ export const useRequestManager = (axios, options = {}) => {
     return requestId;
   };
 
-  axios.interceptors.request.use(config => {
+  axios.interceptors.request.use((config) => {
     const requestId = getRequestId(config);
 
     if (requestId) {
@@ -49,7 +49,7 @@ export const useRequestManager = (axios, options = {}) => {
     return config;
   });
 
-  axios.interceptors.response.use(response => {
+  axios.interceptors.response.use((response) => {
     const requestId = getRequestId(response.config);
     if (requestId) {
       requestManager.remove(requestId);
@@ -62,7 +62,7 @@ export const useRequestManager = (axios, options = {}) => {
     requestManager.cancel(requestId, reason);
   };
 
-  axios.cancelAll = reason => {
+  axios.cancelAll = (reason) => {
     requestManager.cancelAll(reason);
   };
 };

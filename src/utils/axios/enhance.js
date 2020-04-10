@@ -23,21 +23,21 @@ const axiosExtra = {
     this.setHeader('Authorization', value, scopes);
   },
   onRequest(fn) {
-    this.interceptors.request.use(config => fn(config) || config);
+    this.interceptors.request.use((config) => fn(config) || config);
   },
   onResponse(fn) {
-    this.interceptors.response.use(response => fn(response) || response);
+    this.interceptors.response.use((response) => fn(response) || response);
   },
   onRequestError(fn) {
     this.interceptors.request.use(
       undefined,
-      error => fn(error) || Promise.reject(error)
+      (error) => fn(error) || Promise.reject(error)
     );
   },
   onResponseError(fn) {
     this.interceptors.response.use(
       undefined,
-      error => fn(error) || Promise.reject(error)
+      (error) => fn(error) || Promise.reject(error)
     );
   },
   onError(fn) {
@@ -46,7 +46,7 @@ const axiosExtra = {
   },
   create(options) {
     return createAxiosInstance(defaultsDeep(options, this.defaults));
-  }
+  },
 };
 
 // Request helpers ($get, $post, ...)
@@ -58,45 +58,29 @@ for (let method of [
   'options',
   'post',
   'put',
-  'patch'
+  'patch',
 ]) {
-  axiosExtra['$' + method] = function() {
-    return this[method].apply(this, arguments).then(res => res && res.data);
+  axiosExtra['$' + method] = function () {
+    return this[method].apply(this, arguments).then((res) => res && res.data);
   };
 }
 
-const extendAxiosInstance = axios => {
+const extendAxiosInstance = (axios) => {
   for (let key in axiosExtra) {
     axios[key] = axiosExtra[key].bind(axios);
   }
 };
 
-const createAxiosInstance = axiosOptions => {
-  // Create new axios instance
-  const axios = Axios.create(axiosOptions);
-  axios.CancelToken = Axios.CancelToken;
-  axios.isCancel = Axios.isCancel;
-
-  // Extend axios proto
-  extendAxiosInstance(axios);
-
-  if (isDev) {
-    setupDebugInterceptor(axios);
-  }
-
-  return axios;
-};
-
-const setupDebugInterceptor = axios => {
-  axios.onRequestError(error => {
+const setupDebugInterceptor = (axios) => {
+  axios.onRequestError((error) => {
     consola.error('Request error:', error);
   });
 
-  axios.onResponseError(error => {
+  axios.onResponseError((error) => {
     consola.error('error', 'Response error:', error);
   });
 
-  axios.onResponse(res => {
+  axios.onResponse((res) => {
     consola.success(
       '[' + (res.status + ' ' + res.statusText) + ']',
       '[' + res.config.method.toUpperCase() + ']',
@@ -109,26 +93,34 @@ const setupDebugInterceptor = axios => {
   });
 };
 
-export const createEnhancedAxiosInstance = extraOptions => {
+export const createAxiosInstance = (extraOptions) => {
   const headers = {
     common: {
-      Accept: 'application/json, text/plain, */*'
+      Accept: 'application/json, text/plain, */*',
     },
     delete: {},
     get: {},
     head: {},
     post: {},
     put: {},
-    patch: {}
+    patch: {},
   };
 
   const axiosOptions = {
-    headers
+    headers,
   };
 
-  const axios = createEnhancedAxiosInstance(
-    defaultsDeep(extraOptions, axiosOptions)
-  );
+  // Create new axios instance
+  const axios = Axios.create(defaultsDeep(extraOptions, axiosOptions));
+  axios.CancelToken = Axios.CancelToken;
+  axios.isCancel = Axios.isCancel;
+
+  // Extend axios proto
+  extendAxiosInstance(axios);
+
+  if (isDev) {
+    setupDebugInterceptor(axios);
+  }
 
   return axios;
 };
