@@ -12,7 +12,7 @@ export const defaultDataTransformer = (data = {}) => data;
 
 // biz logic
 export const validateResponse = (response) => {
-  const { errcode = 0, errmsg = '未知错误', ...ret } = response;
+  const { errcode = 200, errmsg = '未知错误', ...ret } = response;
 
   switch (`${errcode}`) {
     case '200':
@@ -48,16 +48,16 @@ export const setupInterceptor = (enhancedAxios) => {
     if (__needValidation) {
       try {
         response.data = validateResponse(response.data);
-
-        if (typeof transformData === 'function') {
-          response.data = transformData(response.data);
-        } else if (transformData === true) {
-          response.data = defaultDataTransformer(response.data);
-        }
       } catch (error) {
         error.config = response.config;
         throw error;
       }
+    }
+
+    if (typeof transformData === 'function') {
+      response.data = transformData(response.data);
+    } else if (transformData === true) {
+      response.data = defaultDataTransformer(response.data);
     }
   });
 

@@ -20,20 +20,22 @@ export default defineComponent({
   setup() {
     const query = ref('');
 
-    const { data: items, loading, fetchData } = useAsync({
-      url: '/hn/search',
-      params: {
-        query: query.value,
+    const { data, loading, fetchData } = useAsync(
+      {
+        url: 'https://jsonplaceholder.typicode.com/posts',
+        params: {
+          query: query.value,
+        },
+        __needValidation: false,
+        // transformData: ({ hits }) => hits,
       },
-      transformData: ({ hits }) => hits,
-    });
-
-    console.log(items.value);
+      []
+    );
 
     fetchData();
 
     return {
-      items,
+      items: data,
       loading,
     };
   },
