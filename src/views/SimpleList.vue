@@ -22,7 +22,7 @@ export default defineComponent({
 
     const { data, loading, fetchData } = useAsync(
       {
-        url: 'https://jsonplaceholder.typicode.com/posts',
+        url: '/json/posts',
         params: {
           query: query.value,
         },

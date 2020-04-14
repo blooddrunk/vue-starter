@@ -14,6 +14,12 @@ export const routes = [
     name: 'SimpleList',
     component: () => import('../views/SimpleList.vue'),
   },
+
+  {
+    path: '/counter',
+    name: 'Counter',
+    component: () => import('../views/Counter.vue'),
+  },
 ];
 
 export const router = createRouter({

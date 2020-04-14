@@ -1,0 +1,16 @@
+.button {
+  @apply font-bold py-2 px-4 rounded;
+
+  &_primary {
+    @apply bg-blue-500 text-white;
+    @extend .button;
+
+    & + & {
+      @apply ml-2;
+    }
+
+    &:hover {
+      @apply bg-blue-700;
+    }
+  }
+}

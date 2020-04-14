@@ -1,31 +1,25 @@
-import { ref, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 
 import { wrap } from './helpers';
 
 export default (fn, ms, { immediate = false } = {}) => {
-  const isReady = ref(false);
-
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
   const delay = wrap(ms);
 
-  let timeoutID = null;
+  let intervalID;
 
   const clear = () => {
-    isReady.value = false;
-    if (timeoutID) {
-      clearTimeout(timeoutID);
-      timeoutID = null;
+    if (intervalID) {
+      clearInterval(intervalID);
+      intervalID = null;
     }
   };
 
   const set = () => {
     clear();
 
-    timeoutID = setTimeout(() => {
-      isReady.value = true;
-      fn();
-    }, delay.value);
+    intervalID = setInterval(fn, delay.value);
   };
 
   if (immediate) {
@@ -39,7 +33,6 @@ export default (fn, ms, { immediate = false } = {}) => {
   });
 
   return {
-    isReady,
     set,
     clear,
   };

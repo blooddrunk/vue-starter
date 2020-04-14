@@ -3,9 +3,9 @@
     <div v-if="loading">Loading...</div>
     <ul v-else>
       <li v-for="item in items" :key="item[itemKey]">
-        <a class="hover:tw-underline" :href="item.url" target="_blank">
+        <div>
           {{ item.title }}
-        </a>
+        </div>
       </li>
     </ul>
   </div>
@@ -28,7 +28,7 @@ export default {
 
     itemKey: {
       type: String,
-      default: 'objectID',
+      default: 'id',
     },
   },
 };

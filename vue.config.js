@@ -1,10 +1,17 @@
 const path = require('path');
 
 module.exports = {
-  // chainWebpack: (config) => {
-  //   const srcDir = config.resolve.alias.get('@');
-  //   config.resolve.alias.set('styles', path.join(srcDir, 'assets/scss'));
-  // },
+  chainWebpack: (config) => {
+    // webpack alias
+    const srcDir = config.resolve.alias.get('@');
+    config.resolve.alias.set('~styles', path.join(srcDir, 'assets/scss'));
+
+    // style-resource-loader
+    const types = ['vue-modules', 'vue', 'normal-modules', 'normal'];
+    types.forEach((type) =>
+      addStyleResource(config.module.rule('scss').oneOf(type))
+    );
+  },
 
   devServer: {
     proxy: {
@@ -20,24 +27,34 @@ module.exports = {
         },
       },
 
-      // '^/js/': {
-      //   target: 'https://my-json-server.typicode.com/blooddrunk/my-json-server',
-      //   pathRewrite: {
-      //     '^/js': '',
-      //   },
-      // },
+      '^/json/': {
+        target: 'https://jsonplaceholder.typicode.com/',
+        pathRewrite: {
+          '^/json': '',
+        },
+      },
     },
   },
 
-  pluginOptions: {
-    'style-resources-loader': {
-      preProcessor: 'scss',
+  publicPath: process.env.VUE_APP_PUBLIC_PATH,
+};
+
+function addStyleResource(rule) {
+  rule
+    .use('style-resource')
+    .loader('style-resources-loader')
+    .options({
       patterns: [
         path.resolve(__dirname, './src/assets/scss/_variables.scss'),
         path.resolve(__dirname, './src/assets/scss/_mixins.scss'),
       ],
-    },
-  },
+      injector: (source, resources) => {
+        // FIXME: simply ignore @use
+        if (/^\s*@use/.test(source)) {
+          return source;
+        }
 
-  // publicPath: process.env.VUE_APP_PUBLIC_PATH,
-};
+        return resources.map(({ content }) => content).join('') + source;
+      },
+    });
+}
