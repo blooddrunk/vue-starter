@@ -5,7 +5,7 @@ import { wrap } from './helpers';
 export default (fn, ms, { immediate = false } = {}) => {
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
-  const delay = wrap(ms);
+  const delayRef = wrap(ms);
 
   let intervalID;
 
@@ -19,7 +19,7 @@ export default (fn, ms, { immediate = false } = {}) => {
   const set = () => {
     clear();
 
-    intervalID = setInterval(fn, delay.value);
+    intervalID = setInterval(fn, delayRef.value);
   };
 
   if (immediate) {

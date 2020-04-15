@@ -1,7 +1,23 @@
+<template>
+  <transition
+    enter-active-class="animated fadeIn"
+    leave-active-class="animated fadeOut"
+  >
+    <div v-if="loading" key="loading">
+      {{ text }}
+    </div>
+    <div v-else key="content">
+      <slot></slot>
+    </div>
+  </transition>
+</template>
+
 <script>
 import { defineComponent } from 'vue';
 
 export default defineComponent({
+  name: 'BaseLoading',
+
   props: {
     backgroundColor: {
       type: String,
@@ -17,12 +33,6 @@ export default defineComponent({
       type: String,
       default: 'Loading...',
     },
-  },
-
-  setup(props, { slots }) {
-    return () => {
-      return <div>{slots.default()}</div>;
-    };
   },
 });
 </script>

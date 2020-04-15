@@ -7,7 +7,7 @@ export default (fn, ms, { immediate = false } = {}) => {
 
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
-  const delay = wrap(ms);
+  const delayRef = wrap(ms);
 
   let timeoutID = null;
 
@@ -25,7 +25,7 @@ export default (fn, ms, { immediate = false } = {}) => {
     timeoutID = setTimeout(() => {
       isReady.value = true;
       fn();
-    }, delay.value);
+    }, delayRef.value);
   };
 
   if (immediate) {

@@ -1,5 +1,6 @@
 import './assets/css/tailwind.css';
 import '~styles/main.scss';
+import 'animate.css';
 
 import { createApp } from 'vue';
 

@@ -1,19 +1,26 @@
 <template>
-  <div>
-    <div v-if="loading">Loading...</div>
-    <ul v-else>
+  <BaseLoading :loading="loading">
+    <ul>
       <li v-for="item in items" :key="item[itemKey]">
-        <div>
+        <div class="tw-p-2 tw-border-b tw-border-gray-500 tw-text-gray-800">
           {{ item.title }}
         </div>
       </li>
     </ul>
-  </div>
+  </BaseLoading>
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue';
+
+import BaseLoading from '@/components/UI/BaseLoading';
+
+export default defineComponent({
   name: 'SimpleList',
+
+  components: {
+    BaseLoading,
+  },
 
   props: {
     items: {
@@ -31,5 +38,5 @@ export default {
       default: 'id',
     },
   },
-};
+});
 </script>

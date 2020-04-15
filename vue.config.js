@@ -28,7 +28,9 @@ module.exports = {
       },
 
       '^/json/': {
-        target: 'https://jsonplaceholder.typicode.com/',
+        // target: 'https://jsonplaceholder.typicode.com/',
+        target:
+          'https://my-json-server.typicode.com/blooddrunk/my-json-server/',
         pathRewrite: {
           '^/json': '',
         },
