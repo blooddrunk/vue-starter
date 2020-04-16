@@ -1,16 +1,15 @@
-import isPlainObject from 'lodash/isPlainObject';
 import { computed } from 'vue';
 
 import useAsyncFn from './useAsyncFn';
 import { useAxios } from '@/context/axios';
 
 export default (url, requestConfig, initialData) => {
-  if (isPlainObject(url)) {
-    initialData = requestConfig;
-    requestConfig = url;
-  } else {
+  if (typeof url === 'string') {
     requestConfig = requestConfig || {};
     requestConfig.url = url;
+  } else {
+    initialData = requestConfig;
+    requestConfig = url;
   }
 
   const axios = useAxios();
@@ -20,7 +19,9 @@ export default (url, requestConfig, initialData) => {
 
   const { data: response, ...rest } = useAsyncFn(
     () => axios(requestConfig),
-    initialData,
+    {
+      data: initialData,
+    },
     {
       immediate,
     }

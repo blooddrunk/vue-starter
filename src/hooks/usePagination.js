@@ -1,36 +1,50 @@
-import { computed, ref, toRefs, watch, readonly } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-export default function usePagination(options = {}) {
-  const { perPage = ref(10), total = ref(0), startPage = 1 } = toRefs(options);
+export default function usePagination({
+  perPage = 10,
+  total = 0,
+  startPage = 1,
+} = {}) {
+  perPage = ref(perPage);
+  total = ref(total);
 
-  // Internal currentPage value
+  // internal state
   const currentPage = ref(startPage);
-  // public readonly ref for the currentPage
-  // changing the current Page is only possible through the provided methods (see below)
-  const page = readonly(currentPage);
 
-  // Computed values
+  // public getter & setter
+  const page = computed({
+    get: () => currentPage.value,
+    set: (value) => {
+      if (typeof value !== 'number') {
+        throw new Error(
+          `[usePagination]: currentPage(${value}) must be of number type`
+        );
+      }
+      currentPage.value = minmax(value, 1, lastPage.value);
+    },
+  });
+
   const lastPage = computed(() =>
-    total.value ? Math.ceil(total.value / perPage.value) : 0
+    total.value ? Math.ceil(total.value / perPage.value) : 1
   );
   const offset = computed(() =>
     Math.min((page.value - 1) * perPage.value, total.value)
   );
+  const isFirst = computed(() => page.value === 1);
+  const isLast = computed(() => page.value === lastPage.value);
 
-  // Functions
-  const set = (value) => {
-    if (typeof value !== 'number') {
-      throw new Error(
-        `[usePagination]: currentPage(${value}) must be of number type`
-      );
-    }
-    currentPage.value = minmax(value, 1, lastPage.value);
+  const prev = () => {
+    --page.value;
   };
-
-  const prev = () => set(page.value - 1);
-  const next = () => set(page.value + 1);
-  const first = () => set(1);
-  const last = () => set(lastPage.value);
+  const next = () => {
+    ++page.value;
+  };
+  const first = () => {
+    page.value = 1;
+  };
+  const last = () => {
+    page.value = lastPage.value;
+  };
 
   // lastPage may never be < currentPage
   watch(
@@ -40,7 +54,7 @@ export default function usePagination(options = {}) {
         currentPage.value = lastPage.value;
       }
     },
-    { lazy: true } // no need to run on first render
+    { lazy: true }
   );
 
   return {
@@ -48,17 +62,19 @@ export default function usePagination(options = {}) {
     perPage,
     total,
 
-    //Computed
     page,
+
+    //computed
     lastPage,
     offset,
+    isFirst,
+    isLast,
 
     // Functions
     next,
     prev,
     first,
     last,
-    set,
   };
 }
 
