@@ -1,6 +1,10 @@
 import { reactive, toRefs } from 'vue';
 
-export default (fn, initialData = null, { immediate = false } = {}) => {
+export default (
+  fn,
+  initialData = null,
+  { immediate = false, throwException = false } = {}
+) => {
   const state = reactive({
     loading: false,
     error: null,
@@ -24,6 +28,10 @@ export default (fn, initialData = null, { immediate = false } = {}) => {
       if (lastPromise === promise) {
         state.error = error;
         console.error(error);
+      }
+
+      if (throwException) {
+        throw error;
       }
     } finally {
       state.loading = false;

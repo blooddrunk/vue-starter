@@ -1,11 +1,8 @@
 import { provide, inject } from 'vue';
 import defaultsDeep from 'lodash/defaultsDeep';
 
-import consola from 'consola';
+import { createAxiosInstance } from '@/utils/axios';
 
-import { createAxiosInstance, useRequestManager } from '@/utils/axios';
-
-const isDev = process.env.NODE_ENV === 'development';
 const apiRoot = process.env.VUE_APP_API_ROOT;
 
 export const defaultDataTransformer = (data = {}) => data;
@@ -90,9 +87,9 @@ export const setupInterceptor = (enhancedAxios) => {
 const axios = createAxiosInstance({
   baseURL: `${apiRoot}`,
 });
-useRequestManager(axios, {
-  logger: isDev ? consola.info : null,
-});
+// useRequestManager(axios, {
+//   logger: isDev ? consola.info : null,
+// });
 setupInterceptor(axios);
 
 // TODO: necessary??
