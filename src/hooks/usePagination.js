@@ -1,54 +1,72 @@
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
+
+import { wrap } from './helpers';
+
+const ensureNumber = (value) => {
+  if (typeof value !== 'number') {
+    throw new Error(`[usePagination]: (${value}) must be of number type`);
+  }
+};
 
 export default function usePagination({
-  perPage = 10,
-  total = 0,
-  startPage = 1,
+  pageSize: defaultPageSize = 10,
+  total: defaultTotal = 0,
+  currentPage: defaultPage = 1,
 } = {}) {
-  perPage = ref(perPage);
-  total = ref(total);
-
-  // internal state
-  const currentPage = ref(startPage);
+  const _currentPage = wrap(defaultPage);
+  const _pageSize = wrap(defaultPageSize);
+  const _total = wrap(defaultTotal);
 
   // public getter & setter
-  const page = computed({
+  const currentPage = computed({
     get: () => currentPage.value,
     set: (value) => {
-      if (typeof value !== 'number') {
-        throw new Error(
-          `[usePagination]: currentPage(${value}) must be of number type`
-        );
-      }
-      currentPage.value = minmax(value, 1, lastPage.value);
+      ensureNumber(value);
+      _currentPage.value = minmax(value, 1, lastPage.value);
+    },
+  });
+
+  const pageSize = computed({
+    get: () => _pageSize.value,
+    set: (value) => {
+      ensureNumber(value);
+      _pageSize.value = value;
+    },
+  });
+
+  const total = computed({
+    get: () => _total.value,
+    set: (value) => {
+      ensureNumber(value);
+      _total.value = value;
     },
   });
 
   const lastPage = computed(() =>
-    total.value ? Math.ceil(total.value / perPage.value) : 1
+    total.value ? Math.ceil(total.value / pageSize.value) : 1
   );
   const offset = computed(() =>
-    Math.min((page.value - 1) * perPage.value, total.value)
+    Math.min((currentPage.value - 1) * pageSize.value, total.value)
   );
-  const isFirst = computed(() => page.value === 1);
-  const isLast = computed(() => page.value === lastPage.value);
+  const isFirst = computed(() => currentPage.value === 1);
+  const isLast = computed(() => currentPage.value === lastPage.value);
 
   const prev = () => {
-    --page.value;
+    --currentPage.value;
   };
   const next = () => {
-    ++page.value;
+    ++currentPage.value;
   };
   const first = () => {
-    page.value = 1;
+    currentPage.value = 1;
   };
   const last = () => {
-    page.value = lastPage.value;
+    currentPage.value = lastPage.value;
   };
 
   // lastPage may never be < currentPage
   watch(
-    [total, perPage],
+    [total, pageSize],
     () => {
       if (currentPage.value > lastPage.value) {
         currentPage.value = lastPage.value;
@@ -59,10 +77,10 @@ export default function usePagination({
 
   return {
     // Mutable state
-    perPage,
+    pageSize,
     total,
 
-    page,
+    currentPage,
 
     //computed
     lastPage,

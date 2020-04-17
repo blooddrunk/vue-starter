@@ -4,7 +4,7 @@
     <a href="#" @click.prevent="pagination.prev()">&lt;</a>
 
     <div class="tw-flex-grow tw-px-3 tw-text-center">
-      {{ `${pagination.page} / ${pagination.lastPage}` }}
+      {{ `${pagination.currentPage} / ${pagination.lastPage}` }}
     </div>
 
     <a href="#" @click.prevent="pagination.next()">&gt;</a>

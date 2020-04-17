@@ -65,13 +65,13 @@ export default defineComponent({
       query.value = event.target.value;
     };
 
-    const pagination = usePagination({ perPage: 20 });
+    const pagination = usePagination({ pageSize: 20 });
     watchEffect(() => {
       pagination.total.value = data.value.nbHits;
     });
 
-    watch(pagination.page, () => {
-      page.value = pagination.page.value;
+    watch(pagination.currentPage, () => {
+      page.value = pagination.currentPage.value;
       fetchData();
     });
 
