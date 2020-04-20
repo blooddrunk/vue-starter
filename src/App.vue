@@ -1,5 +1,5 @@
 <template>
-  <main class="tw-min-h-screen tw-p-6 tw-bg-teal-100">
+  <main class="tw-min-h-screen tw-p-6">
     <section class="tw-flex tw-flex-col tw-items-center tw-pt-20">
       <router-link to="/">
         <h2 class="tw-py-5 tw-text-3xl tw-text-indigo-500 tw-font-bold">
