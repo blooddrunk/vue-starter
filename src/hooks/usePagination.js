@@ -1,9 +1,10 @@
 import { computed, watch } from 'vue';
 
 import { wrap } from './helpers';
+import { isNumeric } from '@/utils/common';
 
 const ensureNumber = (value) => {
-  if (typeof value !== 'number') {
+  if (typeof value !== 'undefined' && !isNumeric(value)) {
     throw new Error(`[usePagination]: (${value}) must be of number type`);
   }
 };
@@ -19,7 +20,7 @@ export default function usePagination({
 
   // public getter & setter
   const currentPage = computed({
-    get: () => currentPage.value,
+    get: () => _currentPage.value,
     set: (value) => {
       ensureNumber(value);
       _currentPage.value = minmax(value, 1, lastPage.value);

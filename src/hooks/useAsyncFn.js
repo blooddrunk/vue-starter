@@ -6,7 +6,7 @@ export default (
   { immediate = false, throwException = false } = {}
 ) => {
   const state = reactive({
-    loading: false,
+    isLoading: false,
     error: null,
     data: initialData,
   });
@@ -14,7 +14,7 @@ export default (
   let lastPromise;
   const fetchData = async (...args) => {
     state.error = null;
-    state.loading = true;
+    state.isLoading = true;
 
     const promise = (lastPromise = fn(...args));
 
@@ -34,7 +34,7 @@ export default (
         throw error;
       }
     } finally {
-      state.loading = false;
+      state.isLoading = false;
     }
   };
 

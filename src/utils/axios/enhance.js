@@ -79,7 +79,11 @@ const setupDebugInterceptor = (axios) => {
   });
 
   axios.onResponseError((error) => {
-    consola.error('error', 'Response error:', error);
+    if (axios.isCancel(error)) {
+      consola.warn(error);
+    } else {
+      consola.error('error', 'Response error:', error);
+    }
   });
 
   axios.onResponse((res) => {
@@ -147,7 +151,7 @@ export const takeLatest = (axios) => {
   return cancellableCall;
 };
 
-export const useRequestManager = (axios, options = {}) => {
+export const setupRequestManager = (axios, options = {}) => {
   const requestManager = new RequestManager(options);
 
   const getRequestId = ({ cancellable, method, url }) => {

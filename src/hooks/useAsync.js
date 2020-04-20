@@ -25,7 +25,7 @@ export default (url, requestConfig, initialData) => {
   const isCancelled = ref(false);
 
   let cancelSource;
-  const cancel = (message?: string) => {
+  const cancel = (message) => {
     if (cancelSource) {
       cancelSource.cancel(message);
       isCancelled.value = true;
@@ -37,7 +37,7 @@ export default (url, requestConfig, initialData) => {
     requestConfig
   );
 
-  const { data: response, ...rest } = useAsyncFn(
+  const { data: response, fetchData, ...rest } = useAsyncFn(
     () => {
       cancelSource = axios.CancelToken.source();
 
@@ -56,6 +56,14 @@ export default (url, requestConfig, initialData) => {
 
   return {
     ...rest,
+    fetchData: (...args) => {
+      if (rest.isLoading) {
+        cancel(
+          `[useAsync]: '${requestConfig.url}' cancelling request due to duplicate call`
+        );
+      }
+      fetchData(...args);
+    },
     cancel,
     response,
     data,

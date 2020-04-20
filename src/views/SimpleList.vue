@@ -9,7 +9,7 @@
     <div>
       <SimpleList
         :items="items"
-        :loading="loading"
+        :loading="isLoading"
         item-key="objectID"
       ></SimpleList>
       <SimplePagination :pagination="pagination"></SimplePagination>
@@ -46,7 +46,7 @@ export default defineComponent({
     const query = ref('vue');
     const page = ref(1);
 
-    const { data, loading, fetchData } = useAsync(
+    const { data, isLoading, fetchData } = useAsync(
       reactive({
         url: 'https://hn.algolia.com/api/v1/search',
         params: {
@@ -66,6 +66,7 @@ export default defineComponent({
     };
 
     const pagination = usePagination({ pageSize: 20 });
+
     watchEffect(() => {
       pagination.total.value = data.value.nbHits;
     });
@@ -88,7 +89,7 @@ export default defineComponent({
     return {
       query,
       items,
-      loading,
+      isLoading,
       handleSubmit,
       handleQueryChange,
 
