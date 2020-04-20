@@ -60,7 +60,7 @@ export default defineComponent({
   }
 
   :global(a.disabled) {
-    @apply tw-text-gray-500;
+    @apply tw-text-gray-500 tw-cursor-not-allowed;
   }
 }
 </style>

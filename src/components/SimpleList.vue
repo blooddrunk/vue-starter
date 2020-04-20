@@ -3,7 +3,17 @@
     <ul>
       <li v-for="item in items" :key="item[itemKey]">
         <div class="tw-p-2 tw-border-b tw-border-gray-500 tw-text-gray-800">
-          {{ item.title }}
+          <a
+            v-if="item.url"
+            class="tw-block tw-transition tw-duration-500 tw-transform hover:tw--translate-y-1 hover:tw-text-blue-700"
+            :href="item.url"
+            target="_blank"
+          >
+            {{ item.title }}
+          </a>
+          <div v-else>
+            {{ item.title }}
+          </div>
         </div>
       </li>
     </ul>
@@ -37,6 +47,21 @@ export default defineComponent({
       type: String,
       default: 'id',
     },
+  },
+
+  setup() {
+    const getItemComponent = (item) => {
+      if (item.url) {
+        return 'a';
+      }
+
+      return 'div';
+    };
+
+    // FIXME: vue-next doesn't support jsx yet
+    return {
+      getItemComponent,
+    };
   },
 });
 </script>

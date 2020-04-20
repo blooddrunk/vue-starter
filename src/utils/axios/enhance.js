@@ -90,7 +90,7 @@ const setupDebugInterceptor = async (axios) => {
 
   axios.onResponse((res) => {
     logger.success(
-      `[${res.status} ${res.statusText}]`,
+      `[${res.status}]`,
       `[${res.config.method.toUpperCase()}]`,
       res.config.url
     );

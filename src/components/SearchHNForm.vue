@@ -1,7 +1,7 @@
 <template>
   <form class="tw-w-full">
     <div class="tw-flex tw-flex-wrap tw-items-center tw-py-3">
-      <div class="tw-flex-grow">
+      <div class="tw-flex-grow tw-max-w-xs">
         <input
           type="text"
           class="input"

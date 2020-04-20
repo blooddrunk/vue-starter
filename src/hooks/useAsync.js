@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 
 import useAsyncFn from './useAsyncFn';
-import { useAxios } from '@/context/axios';
+import { injectAxios } from '@/context/axios';
 
 const removeNonAxiosConfig = (configKey, requestConfig) => {
   const removedConfig = {};
@@ -21,7 +21,7 @@ export default (url, requestConfig, initialData) => {
     requestConfig = url;
   }
 
-  const axios = useAxios();
+  const axios = injectAxios();
   const isCancelled = ref(false);
 
   let cancelSource;

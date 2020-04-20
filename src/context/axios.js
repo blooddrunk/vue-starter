@@ -105,7 +105,7 @@ export const provideAxios = () => {
   provide(AxiosSymbol, axios);
 };
 
-export const useAxios = () => {
+export const injectAxios = () => {
   const injectedAxios = inject(AxiosSymbol);
   if (!injectedAxios) {
     throw new Error('No axios provided');
