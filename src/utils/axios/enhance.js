@@ -1,7 +1,7 @@
 import Axios, { CancelToken } from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
-import consola from 'consola';
 
+import { getLogger } from '@/utils/common';
 import RequestManager from './RequestManager';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -73,27 +73,29 @@ const extendAxiosInstance = (axios) => {
   }
 };
 
-const setupDebugInterceptor = (axios) => {
+const setupDebugInterceptor = async (axios) => {
+  const logger = await getLogger();
+
   axios.onRequestError((error) => {
-    consola.error('Request error:', error);
+    logger.error('Request error:', error);
   });
 
   axios.onResponseError((error) => {
     if (axios.isCancel(error)) {
-      consola.warn(error);
+      logger.warn(error);
     } else {
-      consola.error('error', 'Response error:', error);
+      logger.error('error', 'Response error:', error);
     }
   });
 
   axios.onResponse((res) => {
-    consola.success(
-      '[' + (res.status + ' ' + res.statusText) + ']',
-      '[' + res.config.method.toUpperCase() + ']',
+    logger.success(
+      `[${res.status} ${res.statusText}]`,
+      `[${res.config.method.toUpperCase()}]`,
       res.config.url
     );
 
-    consola.info(res);
+    logger.info(res);
 
     return res;
   });

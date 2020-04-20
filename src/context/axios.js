@@ -87,7 +87,7 @@ export const setupInterceptor = (enhancedAxios) => {
 const axios = createAxiosInstance({
   baseURL: `${apiRoot}`,
 });
-// useRequestManager(axios, {
+// setupRequestManager(axios, {
 //   logger: isDev ? consola.info : null,
 // });
 setupInterceptor(axios);

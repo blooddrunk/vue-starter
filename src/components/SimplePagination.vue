@@ -1,9 +1,9 @@
 <template>
-  <div class="tw-flex tw-py-3 tw-px-2">
+  <div :class="$style.pagination" class="tw-flex tw-py-3 tw-px-2">
     <a href="#" @click.prevent="pagination.first()">&Lt;</a>
     <a href="#" @click.prevent="pagination.prev()">&lt;</a>
 
-    <div class="tw-flex-grow tw-px-3 tw-text-center">
+    <div class="tw-flex-grow tw-text-center">
       {{ `${pagination.currentPage} / ${pagination.lastPage}` }}
     </div>
 
@@ -26,3 +26,11 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" module>
+.pagination {
+  & > * {
+    @apply tw-p-2;
+  }
+}
+</style>
