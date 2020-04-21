@@ -48,6 +48,7 @@ export default defineComponent({
 
     const { data, isLoading, fetchData } = useAsync(
       reactive({
+        // '/hn/search' using proxy will take forever
         url: 'https://hn.algolia.com/api/v1/search',
         params: {
           query,

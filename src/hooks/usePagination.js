@@ -77,10 +77,8 @@ export default function usePagination({
   );
 
   return {
-    // Mutable state
     pageSize,
     total,
-
     currentPage,
 
     //computed

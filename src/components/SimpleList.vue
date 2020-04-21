@@ -9,10 +9,10 @@
             :href="item.url"
             target="_blank"
           >
-            {{ item.title }}
+            {{ item[titleKey] }}
           </a>
           <div v-else>
-            {{ item.title }}
+            {{ item[titleKey] }}
           </div>
         </div>
       </li>
@@ -46,6 +46,11 @@ export default defineComponent({
     itemKey: {
       type: String,
       default: 'id',
+    },
+
+    titleKey: {
+      type: String,
+      default: 'title',
     },
   },
 

@@ -28,6 +28,11 @@ export default {
         text: 'Simple list',
         to: '/simple-list',
       },
+
+      {
+        text: 'Simple form',
+        to: '/simple-form',
+      },
     ],
   }),
 };

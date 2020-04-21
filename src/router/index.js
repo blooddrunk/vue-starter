@@ -20,6 +20,12 @@ export const routes = [
     name: 'Counter',
     component: () => import('../views/Counter.vue'),
   },
+
+  {
+    path: '/simple-form',
+    name: 'SimpleForm',
+    component: () => import('../views/SimpleForm.vue'),
+  },
 ];
 
 export const router = createRouter({
