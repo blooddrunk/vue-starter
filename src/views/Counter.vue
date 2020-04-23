@@ -60,9 +60,13 @@ export default defineComponent({
 
     const delay1InMilliseconds = computed(() => delay1.value * 1000 || 1000);
 
-    const { set: increamentAsync } = useTimeout(() => {
-      ++counter1.value;
-    }, delay1InMilliseconds);
+    const { set: increamentAsync } = useTimeout(
+      () => {
+        ++counter1.value;
+      },
+      delay1InMilliseconds,
+      { immediate: false }
+    );
 
     const resetCounter1 = () => {
       counter1.value = 0;
@@ -74,9 +78,13 @@ export default defineComponent({
 
     const delay2InMilliseconds = computed(() => delay2.value * 1000 || 1000);
 
-    const { set: start, clear: stop } = useInterval(() => {
-      ++counter2.value;
-    }, delay2InMilliseconds);
+    const { set: start, clear: stop } = useInterval(
+      () => {
+        ++counter2.value;
+      },
+      delay2InMilliseconds,
+      { immediate: false }
+    );
 
     const resetCounter2 = () => {
       stop();

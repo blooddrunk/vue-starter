@@ -17,13 +17,13 @@
 <script>
 import { defineComponent } from 'vue';
 
-import { provideAxios } from '@/context/axios';
+// import { provideAxios } from '@/context/axios';
 
 export default defineComponent({
   name: 'App',
 
   setup() {
-    provideAxios();
+    // provideAxios();
   },
 });
 </script>

@@ -1,11 +1,16 @@
 <template>
   <div>
-    <ProductForm></ProductForm>
+    <ProductForm @submit="handleSubmit"></ProductForm>
     <SimpleList
+      class="tw-mt-6"
       :items="items"
       :loading="isLoading"
       title-key="name"
-    ></SimpleList>
+    >
+      <template #action="{ item }">
+        <button class="button_normal" @click="handleRemove(item)">❌</button>
+      </template>
+    </SimpleList>
   </div>
 </template>
 
@@ -27,18 +32,35 @@ export default defineComponent({
   setup() {
     const { data: items, isLoading, fetchData } = useAsync(
       {
-        // 'https://my-json-server.typicode.com/blooddrunk/my-json-server/products'
-        url: '/json/products',
+        url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
         __needValidation: false,
         immediate: true,
       },
       []
     );
 
+    const handleSubmit = (value) => {
+      items.value.unshift(value);
+    };
+
+    const handleRemove = (item) => {
+      useAsync(
+        {
+          url: `${process.env.VUE_APP_JSON_SERVER_PATH}products/${item.id}`,
+          method: 'delete',
+          __needValidation: false,
+          immediate: true,
+        },
+        []
+      );
+    };
+
     return {
       items,
       isLoading,
       fetchData,
+      handleSubmit,
+      handleRemove,
     };
   },
 });

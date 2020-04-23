@@ -4,6 +4,14 @@ module.exports = {
 
   theme: {
     extend: {
+      borderWidth: {
+        thin: 'thin',
+      },
+
+      colors: {
+        inherit: 'inherit',
+      },
+
       backgroundColor: {
         primary: ' #f0f2f3',
         secondary: '#153455',

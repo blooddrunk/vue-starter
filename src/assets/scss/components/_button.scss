@@ -1,16 +1,25 @@
 .button {
-  @apply font-bold py-2 px-4 rounded;
+  @apply tw-font-bold tw-py-2 tw-px-4 tw-rounded;
+
+  & + & {
+    @apply tw-ml-2;
+  }
 
   &_primary {
-    @apply bg-blue-500 text-white;
+    @apply tw-bg-blue-500 tw-text-white;
     @extend .button;
 
-    & + & {
-      @apply ml-2;
+    &:hover {
+      @apply tw-bg-blue-700;
     }
+  }
+
+  &_normal {
+    @apply tw-bg-white text-gray-700;
+    @extend .button;
 
     &:hover {
-      @apply bg-blue-700;
+      @apply tw-bg-gray-100;
     }
   }
 }

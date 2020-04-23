@@ -2,17 +2,23 @@
   <BaseLoading :loading="loading">
     <ul>
       <li v-for="item in items" :key="item[itemKey]">
-        <div class="tw-p-2 tw-border-b tw-border-gray-500 tw-text-gray-800">
+        <div
+          class="tw-flex tw-items-center tw-border-b-thin tw-border-gray-500 tw-text-gray-800"
+        >
           <a
             v-if="item.url"
-            class="tw-block tw-transition tw-duration-500 tw-transform hover:tw--translate-y-1 hover:tw-text-blue-700"
+            class="tw-flex-grow tw-block tw-p-2 tw-transition tw-duration-500 tw-transform hover:tw--translate-y-1 hover:tw-text-blue-700"
             :href="item.url"
             target="_blank"
           >
             {{ item[titleKey] }}
           </a>
-          <div v-else>
+          <div v-else class="tw-flex-grow tw-p-2">
             {{ item[titleKey] }}
+          </div>
+
+          <div>
+            <slot name="action" :item="item"></slot>
           </div>
         </div>
       </li>

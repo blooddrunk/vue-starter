@@ -2,7 +2,7 @@ import { watchEffect } from 'vue';
 
 import { wrap } from './helpers';
 
-export default (fn, ms, { immediate = false } = {}) => {
+export default (fn, ms, { immediate = true } = {}) => {
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
   const delayRef = wrap(ms);

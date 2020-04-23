@@ -2,7 +2,7 @@ import { ref, watchEffect } from 'vue';
 
 import { wrap } from './helpers';
 
-export default (fn, ms, { immediate = false } = {}) => {
+export default (fn, ms, { immediate = true } = {}) => {
   const isReady = ref(false);
 
   // TODO: to remain reactivity, ms has to be a ref

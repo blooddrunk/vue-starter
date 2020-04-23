@@ -1,7 +1,7 @@
 import { onBeforeUnmount } from 'vue';
 import { CancelToken } from 'axios';
 
-import { RequestManager } from '@/utils/axios';
+import RequestManager from '@/utils/axios/RequestManager';
 
 export default ({ cancelOnUnmounted = true } = {}) => {
   let requestManager;
