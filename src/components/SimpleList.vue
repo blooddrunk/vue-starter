@@ -7,7 +7,7 @@
     >
       <li v-for="item in items" :key="item[itemKey]">
         <div
-          class="tw-flex tw-items-center tw-border-b-thin tw-border-gray-500 tw-text-gray-800"
+          class="tw-flex tw-items-center tw-border-b-thin tw-border-gray-500"
         >
           <a
             v-if="item.url"

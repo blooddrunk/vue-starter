@@ -11,4 +11,8 @@ body {
   @include fluid-type($min_width, $max_width, $min_font, $max_font);
 
   @apply tw-antialiased tw-text-primary;
+
+  @screen dark {
+    @apply tw-text-white;
+  }
 }

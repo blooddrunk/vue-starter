@@ -8,6 +8,10 @@ module.exports = {
         thin: 'thin',
       },
 
+      screens: {
+        dark: { raw: '(prefers-color-scheme: dark)' },
+      },
+
       colors: {
         inherit: 'inherit',
       },
