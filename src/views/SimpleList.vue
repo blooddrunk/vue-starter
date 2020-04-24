@@ -30,7 +30,7 @@ import {
 import SimpleList from '@/components/SimpleList';
 import SimplePagination from '@/components/SimplePagination';
 import SearchHNForm from '@/components/SearchHNForm';
-import useAsync from '@/hooks/useAsync';
+import useAxios from '@/hooks/useAxios';
 import usePagination from '@/hooks/usePagination';
 
 export default defineComponent({
@@ -46,7 +46,7 @@ export default defineComponent({
     const query = ref('vue');
     const page = ref(1);
 
-    const { data, isLoading, request } = useAsync(
+    const { data, isLoading, request } = useAxios(
       reactive({
         // '/hn/search' using proxy will take forever
         url: 'https://hn.algolia.com/api/v1/search',

@@ -42,8 +42,12 @@
           </div>
         </transition>
 
-        <button class="button_primary" type="submit" :disabled="!isValid">
-          Submit
+        <button
+          class="button_primary"
+          type="submit"
+          :disabled="!isValid || isLoading"
+        >
+          {{ isLoading ? 'Submitting...' : 'Submit' }}
         </button>
         <button class="button_normal" type="reset">Reset</button>
       </div>
@@ -55,7 +59,7 @@
 import { defineComponent, reactive, ref, watch, watchEffect } from 'vue';
 
 import BaseTextInput from '@/components/UI/BaseTextInput';
-import useAsync from '@/hooks/useAsync';
+import useAxios from '@/hooks/useAxios';
 import useTimeout from '@/hooks/useTimeout';
 
 const useValidation = (product) => {
@@ -85,7 +89,7 @@ export default defineComponent({
       isValid.value = useValidation(product);
     });
 
-    const { data, error, request } = useAsync(
+    const { data, error, request, isCompleted, isLoading } = useAxios(
       {
         url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
         method: 'post',
@@ -106,7 +110,11 @@ export default defineComponent({
     };
 
     const message = ref('');
-    watch([data, error], () => {
+    watch(isCompleted, (value) => {
+      if (!value) {
+        return;
+      }
+
       if (error.value) {
         message.value = 'Failed to create product';
       } else {
@@ -117,10 +125,18 @@ export default defineComponent({
 
       useTimeout(() => {
         message.value = '';
-      }, 2000);
+      }, 3000);
     });
 
-    return { product, handleSubmit, handleReset, message, error, isValid };
+    return {
+      product,
+      handleSubmit,
+      handleReset,
+      message,
+      error,
+      isValid,
+      isLoading,
+    };
   },
 });
 </script>
