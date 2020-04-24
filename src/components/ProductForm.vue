@@ -42,7 +42,9 @@
           </div>
         </transition>
 
-        <button class="button_primary" type="submit">Submit</button>
+        <button class="button_primary" type="submit" :disabled="!isValid">
+          Submit
+        </button>
         <button class="button_normal" type="reset">Reset</button>
       </div>
     </form>
@@ -50,11 +52,15 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref, watch } from 'vue';
+import { defineComponent, reactive, ref, watch, watchEffect } from 'vue';
 
 import BaseTextInput from '@/components/UI/BaseTextInput';
 import useAsync from '@/hooks/useAsync';
 import useTimeout from '@/hooks/useTimeout';
+
+const useValidation = (product) => {
+  return product.name && product.price && product.inventory;
+};
 
 export default defineComponent({
   name: 'ProductForm',
@@ -73,8 +79,13 @@ export default defineComponent({
       price: null,
       inventory: null,
     });
+    const isValid = ref(false);
 
-    const { data, error, fetchData } = useAsync(
+    watchEffect(() => {
+      isValid.value = useValidation(product);
+    });
+
+    const { data, error, request } = useAsync(
       {
         url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
         method: 'post',
@@ -85,7 +96,7 @@ export default defineComponent({
     );
 
     const handleSubmit = () => {
-      fetchData();
+      request();
     };
 
     const handleReset = () => {
@@ -109,7 +120,7 @@ export default defineComponent({
       }, 2000);
     });
 
-    return { product, handleSubmit, handleReset, message, error };
+    return { product, handleSubmit, handleReset, message, error, isValid };
   },
 });
 </script>

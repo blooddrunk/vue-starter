@@ -46,7 +46,7 @@ export default defineComponent({
     const query = ref('vue');
     const page = ref(1);
 
-    const { data, isLoading, fetchData } = useAsync(
+    const { data, isLoading, request } = useAsync(
       reactive({
         // '/hn/search' using proxy will take forever
         url: 'https://hn.algolia.com/api/v1/search',
@@ -74,14 +74,14 @@ export default defineComponent({
 
     watch(pagination.currentPage, () => {
       page.value = pagination.currentPage.value;
-      fetchData();
+      request();
     });
 
     const handleSubmit = (event) => {
       event.preventDefault();
 
       if (pagination.isFirst.value) {
-        fetchData();
+        request();
       } else {
         pagination.first();
       }

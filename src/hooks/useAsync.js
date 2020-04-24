@@ -36,7 +36,7 @@ export default (url, requestConfig, initialData) => {
     requestConfig
   );
 
-  const { data: response, fetchData, ...rest } = useAsyncFn(
+  const { data: response, request, ...rest } = useAsyncFn(
     () => {
       cancelSource = axios.CancelToken.source();
 
@@ -55,13 +55,13 @@ export default (url, requestConfig, initialData) => {
 
   return {
     ...rest,
-    fetchData: (...args) => {
+    request: (...args) => {
       if (rest.isLoading) {
         cancel(
           `[useAsync]: '${requestConfig.url}' cancelling request due to duplicate call`
         );
       }
-      fetchData(...args);
+      request(...args);
     },
     cancel,
     response,

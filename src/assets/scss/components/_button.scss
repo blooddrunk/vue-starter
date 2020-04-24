@@ -1,6 +1,10 @@
 .button {
   @apply tw-font-bold tw-py-2 tw-px-4 tw-rounded;
 
+  &:disabled {
+    @apply tw-opacity-50 tw-cursor-not-allowed;
+  }
+
   & + & {
     @apply tw-ml-2;
   }

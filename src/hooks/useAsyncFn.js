@@ -12,7 +12,7 @@ export default (
   });
 
   let lastPromise;
-  const fetchData = async (...args) => {
+  const request = async (...args) => {
     state.error = null;
     state.isLoading = true;
 
@@ -39,11 +39,11 @@ export default (
   };
 
   if (immediate) {
-    fetchData();
+    request();
   }
 
   return {
     ...toRefs(state),
-    fetchData,
+    request,
   };
 };

@@ -30,7 +30,7 @@ export default defineComponent({
   },
 
   setup() {
-    const { data: items, isLoading, fetchData } = useAsync(
+    const { data: items, isLoading, request } = useAsync(
       {
         url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
         __needValidation: false,
@@ -58,7 +58,7 @@ export default defineComponent({
     return {
       items,
       isLoading,
-      fetchData,
+      request,
       handleSubmit,
       handleRemove,
     };
