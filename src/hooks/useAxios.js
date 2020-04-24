@@ -51,7 +51,10 @@ export default (url, requestConfig, initialData) => {
     useAsyncFnOptions
   );
 
-  const data = computed(() => response.value.data);
+  const data = computed({
+    get: () => response.value.data,
+    set: (newValue) => (response.value.data = newValue),
+  });
 
   return {
     ...rest,

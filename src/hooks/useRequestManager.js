@@ -3,7 +3,7 @@ import { CancelToken } from 'axios';
 
 import RequestManager from '@/utils/axios/RequestManager';
 
-export default ({ cancelOnUnmounted = true } = {}) => {
+export default ({ cancelOnUnmount = true } = {}) => {
   let requestManager;
 
   const enhance = (requestID, requestConfig) => {
@@ -36,10 +36,10 @@ export default ({ cancelOnUnmounted = true } = {}) => {
     requestManager && requestManager.cancelAll(reason);
   };
 
-  if (cancelOnUnmounted) {
+  if (cancelOnUnmount) {
     onBeforeUnmount(() => {
       cancelAll(
-        `[useRequestManager]: cancelling request due component unmount`
+        `[useRequestManager]: cancelling request due to component unmount`
       );
     });
   }

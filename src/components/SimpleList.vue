@@ -1,6 +1,10 @@
 <template>
   <BaseLoading :loading="loading">
-    <ul>
+    <transition-group
+      tag="ul"
+      enter-active-class="animated fadeInUp"
+      leave-active-class="animated fadeOutRight"
+    >
       <li v-for="item in items" :key="item[itemKey]">
         <div
           class="tw-flex tw-items-center tw-border-b-thin tw-border-gray-500 tw-text-gray-800"
@@ -22,7 +26,7 @@
           </div>
         </div>
       </li>
-    </ul>
+    </transition-group>
   </BaseLoading>
 </template>
 
