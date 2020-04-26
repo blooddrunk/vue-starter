@@ -1,5 +1,6 @@
 {
   "watch": [
+    "package.json",
     "vue.config.js",
     "tailwind.config.js",
     "postcss.config.js",

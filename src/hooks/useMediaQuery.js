@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
-import { isClient } from './helpers';
+import { isClient } from '@/utils/common';
 
 export default (query) => {
   let mql;

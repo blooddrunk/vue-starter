@@ -1,5 +1,7 @@
 const isDev = process.env.NODE_ENV === 'development';
 
+export const isClient = () => typeof window === 'object';
+
 export const isNumeric = (num) => !isNaN(num) && isFinite(num);
 
 export const noop = () => {};
