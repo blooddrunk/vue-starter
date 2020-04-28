@@ -3,10 +3,20 @@ import { computed, watch } from 'vue';
 import { wrap } from './helpers';
 import { isNumeric } from '@/utils/common';
 
-const ensureNumber = (value) => {
+const ensureNumber = (value: number | string) => {
   if (typeof value !== 'undefined' && !isNumeric(value)) {
     throw new Error(`[usePagination]: (${value}) must be of number type`);
   }
+};
+
+const minmax = (value: number, min: number, max: number) => {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
 };
 
 export default function usePagination({
@@ -18,12 +28,11 @@ export default function usePagination({
   const _pageSize = wrap(defaultPageSize);
   const _total = wrap(defaultTotal);
 
-  // public getter & setter
-  const currentPage = computed({
-    get: () => _currentPage.value,
+  const total = computed({
+    get: () => _total.value,
     set: (value) => {
       ensureNumber(value);
-      _currentPage.value = minmax(value, 1, lastPage.value);
+      _total.value = value;
     },
   });
 
@@ -35,17 +44,18 @@ export default function usePagination({
     },
   });
 
-  const total = computed({
-    get: () => _total.value,
-    set: (value) => {
-      ensureNumber(value);
-      _total.value = value;
-    },
-  });
-
   const lastPage = computed(() =>
     total.value ? Math.ceil(total.value / pageSize.value) : 1
   );
+  // public getter & setter
+  const currentPage = computed({
+    get: () => _currentPage.value,
+    set: (value) => {
+      ensureNumber(value);
+      _currentPage.value = minmax(value, 1, lastPage.value);
+    },
+  });
+
   const offset = computed(() =>
     Math.min((currentPage.value - 1) * pageSize.value, total.value)
   );
@@ -66,15 +76,11 @@ export default function usePagination({
   };
 
   // lastPage may never be < currentPage
-  watch(
-    [total, pageSize],
-    () => {
-      if (currentPage.value > lastPage.value) {
-        currentPage.value = lastPage.value;
-      }
-    },
-    { lazy: true }
-  );
+  watch([total, pageSize], () => {
+    if (currentPage.value > lastPage.value) {
+      currentPage.value = lastPage.value;
+    }
+  });
 
   return {
     pageSize,
@@ -94,13 +100,3 @@ export default function usePagination({
     last,
   };
 }
-
-const minmax = (value, min, max) => {
-  if (value < min) {
-    return min;
-  }
-  if (value > max) {
-    return max;
-  }
-  return value;
-};

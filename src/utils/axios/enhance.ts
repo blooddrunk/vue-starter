@@ -1,13 +1,59 @@
-import Axios, { CancelToken } from 'axios';
+import Axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosStatic,
+} from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
-import { getLogger } from '@/utils/common';
+import { logger } from '@/utils/logger';
 import RequestManager from './RequestManager';
 
 const isDev = process.env.NODE_ENV === 'development';
 
 // stolen from nuxt-axios https://github.com/nuxt-community/axios-module
-const axiosExtra = {
+interface EnhancedAxiosInstance extends AxiosStatic {
+  $request<T = any>(config: AxiosRequestConfig): Promise<T>;
+  $get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  $delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  $head<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  $options<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  $post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T>;
+  $put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T>;
+  $patch<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T>;
+
+  setBaseURL(baseURL: string): void;
+  setHeader(
+    name: string,
+    value?: string | false,
+    scopes?: string | string[]
+  ): void;
+  setToken(
+    token: string | false,
+    type?: string,
+    scopes?: string | string[]
+  ): void;
+
+  onRequest(callback: (config: AxiosRequestConfig) => void): void;
+  onResponse<T = any>(callback: (response: AxiosResponse<T>) => void): void;
+  onError(callback: (error: AxiosError) => void): void;
+  onRequestError(callback: (error: AxiosError) => void): void;
+  onResponseError(callback: (error: AxiosError) => void): void;
+}
+
+const axiosExtra: EnhancedAxiosInstance = {
   setBaseURL(baseURL) {
     this.defaults.baseURL = baseURL;
   },
@@ -52,7 +98,7 @@ const axiosExtra = {
 };
 
 // Request helpers ($get, $post, ...)
-for (let method of [
+for (const method of [
   'request',
   'delete',
   'get',
@@ -73,9 +119,7 @@ const extendAxiosInstance = (axios) => {
   }
 };
 
-const setupDebugInterceptor = async (axios) => {
-  const logger = await getLogger();
-
+const setupDebugInterceptor = async (axios: EnhancedAxiosInstance) => {
   axios.onRequestError((error) => {
     logger.error('Request error:', error);
   });
@@ -119,7 +163,9 @@ export const createAxiosInstance = (extraOptions) => {
   };
 
   // Create new axios instance
-  const axios = Axios.create(defaultsDeep(extraOptions, axiosOptions));
+  const axios = Axios.create(
+    defaultsDeep(extraOptions, axiosOptions)
+  ) as EnhancedAxiosInstance;
   axios.CancelToken = Axios.CancelToken;
   axios.isCancel = Axios.isCancel;
 
@@ -153,7 +199,7 @@ export const takeLatest = (axios) => {
   return cancellableCall;
 };
 
-export const setupRequestManager = (axios, options = {}) => {
+export const setupRequestManager = (axios: AxiosInstance, options = {}) => {
   const requestManager = new RequestManager(options);
 
   const getRequestId = ({ cancellable, method, url }) => {

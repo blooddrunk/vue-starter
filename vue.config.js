@@ -1,4 +1,24 @@
-const path = require('path');
+import * as path from 'path';
+
+const addStyleResource = (rule) => {
+  rule
+    .use('style-resource')
+    .loader('style-resources-loader')
+    .options({
+      patterns: [
+        path.resolve(__dirname, './src/assets/scss/_variables.scss'),
+        path.resolve(__dirname, './src/assets/scss/_mixins.scss'),
+      ],
+      injector: (source, resources) => {
+        // FIXME: simply ignore @use
+        if (/^\s*@use/.test(source)) {
+          return source;
+        }
+
+        return resources.map(({ content }) => content).join('') + source;
+      },
+    });
+};
 
 module.exports = {
   chainWebpack: (config) => {
@@ -40,23 +60,3 @@ module.exports = {
 
   publicPath: process.env.VUE_APP_PUBLIC_PATH,
 };
-
-function addStyleResource(rule) {
-  rule
-    .use('style-resource')
-    .loader('style-resources-loader')
-    .options({
-      patterns: [
-        path.resolve(__dirname, './src/assets/scss/_variables.scss'),
-        path.resolve(__dirname, './src/assets/scss/_mixins.scss'),
-      ],
-      injector: (source, resources) => {
-        // FIXME: simply ignore @use
-        if (/^\s*@use/.test(source)) {
-          return source;
-        }
-
-        return resources.map(({ content }) => content).join('') + source;
-      },
-    });
-}

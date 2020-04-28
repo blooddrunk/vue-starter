@@ -1,12 +1,20 @@
+import { Canceler } from 'axios';
+
 import { getLogger } from '@/utils/common';
 
+export type RequestManagerOptions = {
+  logger?: (...args: any[]) => any;
+};
+
 export default class RequestManager {
-  constructor(options = {}, installRequests = []) {
+  requests: Map<string, Canceler>;
+
+  constructor(public options: RequestManagerOptions = {}) {
     this.options = options;
-    this.requests = new Map(installRequests);
+    this.requests = new Map();
   }
 
-  add(requestID, cancelFn) {
+  add(requestID: string, cancelFn: Canceler) {
     this.log(`Adding request '${requestID}'`);
 
     if (this.requests.has(requestID)) {
@@ -16,12 +24,12 @@ export default class RequestManager {
     this.requests.set(requestID, cancelFn);
   }
 
-  remove(requestID) {
+  remove(requestID: string) {
     this.log(`Removing request '${requestID}'`);
     this.requests.delete(requestID);
   }
 
-  cancel(requestID, reason = '') {
+  cancel(requestID: string, reason = '') {
     if (this.requests.has(requestID)) {
       this.requests.get(requestID)(reason);
       this.remove(requestID);
@@ -37,7 +45,7 @@ export default class RequestManager {
     });
   }
 
-  async log(message) {
+  async log(message: string) {
     let { logger } = this.options;
     if (typeof logger === 'undefined') {
       logger = await getLogger();
