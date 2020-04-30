@@ -1,151 +1,91 @@
-import Axios, {
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse,
+import type {
+  AxiosInstance,
   AxiosStatic,
+  AxiosPromise,
+  Canceler,
+  CancelTokenSource,
+  AxiosRequestConfig,
+  Method,
 } from 'axios';
+import Axios from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
+import { isDev } from '@/utils/common';
 import { logger } from '@/utils/logger';
-import RequestManager from './RequestManager';
-
-const isDev = process.env.NODE_ENV === 'development';
+import type { RequestManagerOptions } from './RequestManager';
+import { RequestManager } from './RequestManager';
 
 // stolen from nuxt-axios https://github.com/nuxt-community/axios-module
-interface EnhancedAxiosInstance extends AxiosStatic {
-  $request<T = any>(config: AxiosRequestConfig): Promise<T>;
-  $get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  $delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  $head<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  $options<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  $post<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<T>;
-  $put<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<T>;
-  $patch<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): Promise<T>;
-
-  setBaseURL(baseURL: string): void;
-  setHeader(
-    name: string,
-    value?: string | false,
-    scopes?: string | string[]
-  ): void;
-  setToken(
-    token: string | false,
-    type?: string,
-    scopes?: string | string[]
-  ): void;
-
-  onRequest(callback: (config: AxiosRequestConfig) => void): void;
-  onResponse<T = any>(callback: (response: AxiosResponse<T>) => void): void;
-  onError(callback: (error: AxiosError) => void): void;
-  onRequestError(callback: (error: AxiosError) => void): void;
-  onResponseError(callback: (error: AxiosError) => void): void;
-}
-
-const axiosExtra: EnhancedAxiosInstance = {
-  setBaseURL(baseURL) {
-    this.defaults.baseURL = baseURL;
-  },
-  setHeader(name, value, scopes = 'common') {
-    for (let scope of Array.isArray(scopes) ? scopes : [scopes]) {
-      if (!value) {
-        delete this.defaults.headers[scope][name];
-        return;
-      }
-      this.defaults.headers[scope][name] = value;
-    }
-  },
-  setToken(token, type, scopes = 'common') {
-    const value = !token ? null : (type ? type + ' ' : '') + token;
-    this.setHeader('Authorization', value, scopes);
-  },
-  onRequest(fn) {
-    this.interceptors.request.use((config) => fn(config) || config);
-  },
-  onResponse(fn) {
-    this.interceptors.response.use((response) => fn(response) || response);
-  },
-  onRequestError(fn) {
-    this.interceptors.request.use(
-      undefined,
-      (error) => fn(error) || Promise.reject(error)
-    );
-  },
-  onResponseError(fn) {
-    this.interceptors.response.use(
-      undefined,
-      (error) => fn(error) || Promise.reject(error)
-    );
-  },
-  onError(fn) {
-    this.onRequestError(fn);
-    this.onResponseError(fn);
-  },
-  create(options) {
-    return createAxiosInstance(defaultsDeep(options, this.defaults));
-  },
+type AxiosRequestHelpers = {
+  $request: AxiosInstance['request'];
+  $get: AxiosInstance['get'];
+  $delete: AxiosInstance['delete'];
+  $head: AxiosInstance['head'];
+  $options: AxiosInstance['options'];
+  $post: AxiosInstance['post'];
+  $put: AxiosInstance['put'];
+  $patch: AxiosInstance['patch'];
 };
 
-// Request helpers ($get, $post, ...)
-for (const method of [
-  'request',
-  'delete',
-  'get',
-  'head',
-  'options',
-  'post',
-  'put',
-  'patch',
-]) {
-  axiosExtra['$' + method] = function () {
-    return this[method].apply(this, arguments).then((res) => res && res.data);
-  };
-}
+type EnhancedAxiosInstance = AxiosRequestHelpers & AxiosStatic;
 
-const extendAxiosInstance = (axios) => {
+// Request helpers ($get, $post, ...)
+
+const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
+  for (const method of [
+    'request',
+    'delete',
+    'get',
+    'head',
+    'options',
+    'post',
+    'put',
+    'patch',
+  ] as const) {
+    type AxiosRequestHelpersKey = keyof AxiosRequestHelpers;
+    axiosInstance[`$${method}` as AxiosRequestHelpersKey] = function (
+      ...args
+    ) {
+      return (axiosInstance[method] as AxiosInstance[method])(...args)
+      .then((res) => res && res.data);
+    } as (...args: any[]) => ;
+  }
+
   for (let key in axiosExtra) {
     axios[key] = axiosExtra[key].bind(axios);
   }
 };
 
-const setupDebugInterceptor = async (axios: EnhancedAxiosInstance) => {
-  axios.onRequestError((error) => {
+const setupDebugInterceptor = async (axiosInstance: EnhancedAxiosInstance) => {
+  axiosInstance.interceptors.request.use(undefined, (error) => {
     logger.error('Request error:', error);
+    return Promise.reject(error);
   });
 
-  axios.onResponseError((error) => {
-    if (axios.isCancel(error)) {
-      logger.warn(error);
-    } else {
-      logger.error('error', 'Response error:', error);
+  axiosInstance.interceptors.response.use(
+    (res) => {
+      logger.success(
+        `[${res.status}]`,
+        `[${res.config.method?.toUpperCase()}]`,
+        res.config.url
+      );
+
+      logger.info(res);
+
+      return res;
+    },
+    (error) => {
+      if (axiosInstance.isCancel(error)) {
+        logger.warn(error);
+      } else {
+        logger.error('error', 'Response error:', error);
+      }
+      return Promise.reject(error);
     }
-  });
-
-  axios.onResponse((res) => {
-    logger.success(
-      `[${res.status}]`,
-      `[${res.config.method.toUpperCase()}]`,
-      res.config.url
-    );
-
-    logger.info(res);
-
-    return res;
-  });
+  );
 };
 
-export const createAxiosInstance = (extraOptions) => {
+export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
   const headers = {
     common: {
       Accept: 'application/json, text/plain, */*',
@@ -158,7 +98,7 @@ export const createAxiosInstance = (extraOptions) => {
     patch: {},
   };
 
-  const axiosOptions = {
+  const axiosOptions: AxiosRequestConfig = {
     headers,
   };
 
@@ -166,28 +106,35 @@ export const createAxiosInstance = (extraOptions) => {
   const axios = Axios.create(
     defaultsDeep(extraOptions, axiosOptions)
   ) as EnhancedAxiosInstance;
-  axios.CancelToken = Axios.CancelToken;
-  axios.isCancel = Axios.isCancel;
 
   // Extend axios proto
   extendAxiosInstance(axios);
 
-  if (isDev) {
+  axios.CancelToken = Axios.CancelToken;
+  axios.isCancel = Axios.isCancel;
+
+  if (isDev()) {
     setupDebugInterceptor(axios);
   }
 
   return axios;
 };
 
-export const takeLatest = (axios) => {
-  let source;
+export type CancellableFnType = {
+  (config: any): AxiosPromise;
+} & {
+  cancel?: Canceler;
+};
 
-  const cancellableCall = (config) => {
+export const takeLatest = (axios: EnhancedAxiosInstance) => {
+  let source: CancelTokenSource;
+
+  const cancellableCall: CancellableFnType = (config) => {
     if (source) {
       source.cancel(`[${config.url}]: Only one request allowed at a time.`);
     }
 
-    source = CancelToken.source();
+    source = Axios.CancelToken.source();
     cancellableCall.cancel = source.cancel;
 
     return axios({
@@ -199,10 +146,13 @@ export const takeLatest = (axios) => {
   return cancellableCall;
 };
 
-export const setupRequestManager = (axios: AxiosInstance, options = {}) => {
+export const setupRequestManager = (
+  axios: EnhancedAxiosInstance,
+  options: RequestManagerOptions = {}
+) => {
   const requestManager = new RequestManager(options);
 
-  const getRequestId = ({ cancellable, method, url }) => {
+  const getRequestId = ({ cancellable, method, url }: AxiosRequestConfig) => {
     let requestId;
     if (cancellable === true) {
       // auto-set requestId
@@ -218,7 +168,7 @@ export const setupRequestManager = (axios: AxiosInstance, options = {}) => {
     const requestId = getRequestId(config);
 
     if (requestId) {
-      const source = CancelToken.source();
+      const source = Axios.CancelToken.source();
       config.cancelToken = source.token;
       requestManager.add(requestId, source.cancel);
     }

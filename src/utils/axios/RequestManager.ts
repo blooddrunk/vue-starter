@@ -1,15 +1,16 @@
 import { Canceler } from 'axios';
 
-import { getLogger } from '@/utils/common';
+import { isDev } from '@/utils/common';
+import { logger } from '@/utils/logger';
 
 export type RequestManagerOptions = {
   logger?: (...args: any[]) => any;
 };
 
-export default class RequestManager {
+export class RequestManager {
   requests: Map<string, Canceler>;
 
-  constructor(public options: RequestManagerOptions = {}) {
+  constructor(public options: RequestManagerOptions = { logger: logger.info }) {
     this.options = options;
     this.requests = new Map();
   }
@@ -31,7 +32,7 @@ export default class RequestManager {
 
   cancel(requestID: string, reason = '') {
     if (this.requests.has(requestID)) {
-      this.requests.get(requestID)(reason);
+      this.requests.get(requestID)!(reason);
       this.remove(requestID);
       this.log(`Request '${requestID}' cancelled`);
     }
@@ -46,11 +47,11 @@ export default class RequestManager {
   }
 
   async log(message: string) {
-    let { logger } = this.options;
-    if (typeof logger === 'undefined') {
-      logger = await getLogger();
+    if (isDev()) {
+      return;
     }
 
+    const { logger } = this.options;
     if (logger) {
       logger(`[RequestManager]: ${message}`);
     }

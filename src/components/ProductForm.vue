@@ -55,10 +55,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, reactive, ref, watch, watchEffect } from 'vue';
 
-import BaseTextInput from '@/components/UI/BaseTextInput';
+import BaseTextInput from '@/components/UI/BaseTextInput.vue';
 import useAxios from '@/hooks/useAxios';
 import useTimeout from '@/hooks/useTimeout';
 
