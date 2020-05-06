@@ -1,17 +1,11 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
-import { isClient } from '@/utils/common';
-
-export default (query) => {
-  let mql;
-
-  if (isClient()) {
-    mql = window.matchMedia(query);
-  }
+export default (query: string) => {
+  let mql = window.matchMedia(query);
 
   const matches = ref(mql ? mql.matches : false);
-  const handler = (event) => {
-    mql.value = event.matches;
+  const handler = (event: MediaQueryListEvent) => {
+    matches.value = event.matches;
   };
 
   onMounted(() => {
@@ -19,7 +13,7 @@ export default (query) => {
       mql = window.matchMedia(query);
     }
 
-    mql.value = mql.matches;
+    matches.value = mql.matches;
     mql.addListener(handler);
   });
 

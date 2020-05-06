@@ -1,17 +1,13 @@
-import { onMounted, onBeforeUnmount } from 'vue';
-
-import { unwrap } from './helpers';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default (target, type, handler, options) => {
-  onMounted(() => {
-    const t = unwrap(target);
+  const targetRef = ref(target);
 
-    t.addEventListener(type, handler, options);
+  onMounted(() => {
+    targetRef.value.addEventListener(type, handler, options);
   });
 
   onBeforeUnmount(() => {
-    const t = unwrap(target);
-
-    t.removeEventListener(type, handler, options);
+    targetRef.value.removeEventListener(type, handler, options);
   });
 };

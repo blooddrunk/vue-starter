@@ -5,7 +5,7 @@ import type {
   Canceler,
   CancelTokenSource,
   AxiosRequestConfig,
-  Method,
+  AxiosResponse,
 } from 'axios';
 import Axios from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
@@ -30,12 +30,11 @@ type AxiosRequestHelpers = {
 type EnhancedAxiosInstance = AxiosRequestHelpers & AxiosStatic;
 
 // Request helpers ($get, $post, ...)
-
 const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
   for (const method of [
     'request',
-    'delete',
     'get',
+    'delete',
     'head',
     'options',
     'post',
@@ -44,15 +43,12 @@ const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
   ] as const) {
     type AxiosRequestHelpersKey = keyof AxiosRequestHelpers;
     axiosInstance[`$${method}` as AxiosRequestHelpersKey] = function (
-      ...args
+      ...args: any[]
     ) {
-      return (axiosInstance[method] as AxiosInstance[method])(...args)
-      .then((res) => res && res.data);
-    } as (...args: any[]) => ;
-  }
-
-  for (let key in axiosExtra) {
-    axios[key] = axiosExtra[key].bind(axios);
+      return (axiosInstance[method] as any)(...args).then(
+        (res: AxiosResponse) => res && res.data
+      );
+    };
   }
 };
 

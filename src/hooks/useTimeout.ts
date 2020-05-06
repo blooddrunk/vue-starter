@@ -1,15 +1,13 @@
 import { ref, watchEffect } from 'vue';
 
-import { wrap } from './helpers';
-
-export default (fn, ms, { immediate = true } = {}) => {
+export default (fn: () => void, ms: number, { immediate = true } = {}) => {
   const isReady = ref(false);
 
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
-  const delayRef = wrap(ms);
+  const delayRef = ref(ms);
 
-  let timeoutID = null;
+  let timeoutID: number | null = null;
 
   const clear = () => {
     isReady.value = false;
@@ -22,7 +20,8 @@ export default (fn, ms, { immediate = true } = {}) => {
   const set = () => {
     clear();
 
-    timeoutID = setTimeout(() => {
+    // force correct return type of sto
+    timeoutID = window.setTimeout(() => {
       isReady.value = true;
       fn();
     }, delayRef.value);

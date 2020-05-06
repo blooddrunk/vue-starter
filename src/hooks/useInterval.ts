@@ -1,13 +1,11 @@
-import { watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 
-import { wrap } from './helpers';
-
-export default (fn, ms, { immediate = true } = {}) => {
+export default (fn, ms: number, { immediate = true } = {}) => {
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
-  const delayRef = wrap(ms);
+  const delayRef = ref(ms);
 
-  let intervalID;
+  let intervalID: number | null;
 
   const clear = () => {
     if (intervalID) {
@@ -19,7 +17,7 @@ export default (fn, ms, { immediate = true } = {}) => {
   const set = () => {
     clear();
 
-    intervalID = setInterval(fn, delayRef.value);
+    intervalID = window.setInterval(fn, delayRef.value);
   };
 
   if (immediate) {

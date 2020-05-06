@@ -26,6 +26,12 @@ module.exports = {
     const srcDir = config.resolve.alias.get('@');
     config.resolve.alias.set('~styles', path.join(srcDir, 'assets/scss'));
 
+    // define plugins
+    config.plugin('define').tap((definitions) => {
+      console.log(definitions);
+      return definitions;
+    });
+
     // style-resource-loader
     const types = ['vue-modules', 'vue', 'normal-modules', 'normal'];
     types.forEach((type) =>

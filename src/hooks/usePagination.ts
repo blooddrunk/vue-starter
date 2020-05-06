@@ -1,6 +1,6 @@
-import { computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
+import type { Ref } from 'vue';
 
-import { wrap } from './helpers';
 import { isNumeric } from '@/utils/common';
 
 const ensureNumber = (value: number | string) => {
@@ -19,14 +19,20 @@ const minmax = (value: number, min: number, max: number) => {
   return value;
 };
 
+export type PaginationOptions = Partial<{
+  pageSize: number | Ref<number>;
+  total: number | Ref<number>;
+  currentPage: number | Ref<number>;
+}>;
+
 export default function usePagination({
   pageSize: defaultPageSize = 10,
   total: defaultTotal = 0,
   currentPage: defaultPage = 1,
-} = {}) {
-  const _currentPage = wrap(defaultPage);
-  const _pageSize = wrap(defaultPageSize);
-  const _total = wrap(defaultTotal);
+}: PaginationOptions = {}) {
+  const _currentPage = ref(defaultPage);
+  const _pageSize = ref(defaultPageSize);
+  const _total = ref(defaultTotal);
 
   const total = computed({
     get: () => _total.value,

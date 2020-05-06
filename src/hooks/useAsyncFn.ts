@@ -1,11 +1,35 @@
-import { reactive, toRefs } from 'vue';
+import { reactive, toRefs, ref } from 'vue';
+import type { Ref, ToRefs, UnwrapRef } from 'vue';
 
-export default (
-  fn,
-  initialData = null,
+export type AsyncState<T> = {
+  isLoading: boolean;
+  isCompleted: boolean;
+  isSuccessful: boolean;
+  error?: Error | null;
+  data?: T | null;
+};
+
+export type AsyncFn<T = any, Args extends any[] = any[]> = (
+  ...args: Args | []
+) => Promise<T>;
+
+export type AsyncFnOptions = Partial<{
+  immediate: boolean;
+  throwException: boolean;
+}>;
+
+export type AsyncFnReturn<T> = ToRefs<AsyncState<T>> & {
+  request: (...args: any[] | []) => Promise<void>;
+};
+
+export default <Result = any, Args extends any[] = any[]>(
+  fn: AsyncFn<Result, Args> | Ref<AsyncFn<Result, Args>>,
+  initialData: Result | null = null,
   { immediate = false, throwException = false } = {}
-) => {
-  const state = reactive({
+): AsyncFnReturn<Result> => {
+  const fnRef = ref(fn);
+
+  const state = reactive<AsyncState<Result>>({
     isLoading: false,
     isCompleted: false,
     isSuccessful: false,
@@ -14,19 +38,20 @@ export default (
   });
 
   let lastPromise;
-  const request = async (...args) => {
+  const request = async (...args: Args | []) => {
     state.error = null;
     state.isCompleted = false;
     state.isSuccessful = false;
     state.isLoading = true;
 
-    const promise = (lastPromise = fn(...args));
+    const promise = (lastPromise = fnRef.value(...args));
 
     try {
       const result = await promise;
 
       if (lastPromise === promise) {
-        state.data = result;
+        // FIXME: might related to https://github.com/vuejs/vue-next/pull/1129
+        state.data = result as UnwrapRef<Result>;
         state.isSuccessful = true;
       }
     } catch (error) {
