@@ -1,14 +1,21 @@
 // import { provide, inject } from 'vue';
+import { AxiosResponse } from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
-import { createAxiosInstance } from './enhance';
+import { createAxiosInstance, EnhancedAxiosInstance } from './enhance';
 
 const apiRoot = process.env.VUE_APP_API_ROOT;
 
 export const defaultDataTransformer = (data = {}) => data;
 
+export type ServerResponse = {
+  errcode: number;
+  errmsg: string;
+  data: unknown;
+};
+
 // biz logic
-export const validateResponse = (response) => {
+export const validateResponse = (response: ServerResponse) => {
   const { errcode = 200, errmsg = '未知错误', ...ret } = response;
 
   switch (`${errcode}`) {
@@ -21,7 +28,7 @@ export const validateResponse = (response) => {
 };
 
 // http status
-const validateStatus = (response) => {
+const validateStatus = (response: AxiosResponse) => {
   const { status, data } = response;
 
   console.error(`服务异常: ${status}`, data);
@@ -29,75 +36,65 @@ const validateStatus = (response) => {
   return data;
 };
 
-export const setupInterceptor = (enhancedAxios) => {
-  enhancedAxios.onRequest((config) => {
+export const setupInterceptor = (enhancedAxios: EnhancedAxiosInstance) => {
+  enhancedAxios.interceptors.request.use((config) => {
     //TODO: deal with request config here
     config = defaultsDeep(config, { method: 'GET' });
 
     return config;
   });
 
-  enhancedAxios.onResponse((response) => {
-    const {
-      config: { __needValidation = true, transformData = true },
-    } = response;
+  enhancedAxios.interceptors.response.use(
+    (response) => {
+      const {
+        config: { __needValidation = true, transformData = true },
+      } = response;
 
-    if (__needValidation) {
-      try {
-        response.data = validateResponse(response.data);
-      } catch (error) {
-        error.config = response.config;
-        throw error;
+      if (__needValidation) {
+        try {
+          response.data = validateResponse(response.data);
+        } catch (error) {
+          error.config = response.config;
+          throw error;
+        }
+      }
+
+      if (typeof transformData === 'function') {
+        response.data = transformData(response.data);
+      } else if (transformData === true) {
+        response.data = defaultDataTransformer(response.data);
+      }
+
+      return response;
+    },
+    // only care about response error
+    (error) => {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        const handled = validateStatus(error.response);
+        if (typeof handled === 'string') {
+          error.message = handled;
+        }
+
+        return Promise.reject(error);
       }
     }
-
-    if (typeof transformData === 'function') {
-      response.data = transformData(response.data);
-    } else if (transformData === true) {
-      response.data = defaultDataTransformer(response.data);
-    }
-  });
-
-  enhancedAxios.onError((error) => {
-    // FIXME CAN NOT depend on config property when using CancelToken, it's undefined
-    if (enhancedAxios.isCancel(error)) {
-      // do something maybe
-    }
-
-    let handled = false;
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      handled = validateStatus(error.response);
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      // http.ClientRequest in node.js
-    }
-
-    error.handled = handled;
-    if (typeof handled === 'string') {
-      error.message = handled;
-    }
-
-    return Promise.reject(error);
-  });
+  );
 };
 
 const axios = createAxiosInstance({
   baseURL: `${apiRoot}`,
 });
-// setupRequestManager(axios, {
-//   logger: isDev ? consola.info : null,
-// });
+
 setupInterceptor(axios);
 
 // TODO: necessary??
-export const install = {
-  install(app) {
-    app.config.globalProperties.$axios = axios;
-  },
-};
+// export const install = {
+//   install(app) {
+//     app.config.globalProperties.$axios = axios;
+//   },
+// };
 
 // const AxiosSymbol = Symbol('axios');
 

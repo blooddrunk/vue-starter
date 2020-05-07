@@ -1,8 +1,6 @@
-import { ref, computed } from 'vue';
-import type { Ref } from 'vue';
+import { ref, computed, Ref } from 'vue';
 
-import usePagination from './usePagination';
-import type { PaginationOptions } from './usePagination';
+import usePagination, { PaginationOptions } from './usePagination';
 
 export default function useArrayPagination<T extends any>(
   array: T[] | Ref<T[]>,

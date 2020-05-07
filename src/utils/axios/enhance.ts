@@ -1,4 +1,4 @@
-import type {
+import Axios, {
   AxiosInstance,
   AxiosStatic,
   AxiosPromise,
@@ -7,13 +7,11 @@ import type {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import Axios from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
 import { isDev } from '@/utils/common';
 import { logger } from '@/utils/logger';
-import type { RequestManagerOptions } from './RequestManager';
-import { RequestManager } from './RequestManager';
+import { RequestManager, RequestManagerOptions } from './RequestManager';
 
 // stolen from nuxt-axios https://github.com/nuxt-community/axios-module
 type AxiosRequestHelpers = {
@@ -27,7 +25,7 @@ type AxiosRequestHelpers = {
   $patch: AxiosInstance['patch'];
 };
 
-type EnhancedAxiosInstance = AxiosRequestHelpers & AxiosStatic;
+export type EnhancedAxiosInstance = AxiosRequestHelpers & AxiosStatic;
 
 // Request helpers ($get, $post, ...)
 const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
@@ -43,7 +41,7 @@ const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
   ] as const) {
     type AxiosRequestHelpersKey = keyof AxiosRequestHelpers;
     axiosInstance[`$${method}` as AxiosRequestHelpersKey] = function (
-      ...args: any[]
+      ...args: unknown[]
     ) {
       return (axiosInstance[method] as any)(...args).then(
         (res: AxiosResponse) => res && res.data

@@ -30,10 +30,10 @@
   </BaseLoading>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 
-import BaseLoading from '@/components/UI/BaseLoading';
+import BaseLoading from '@/components/UI/BaseLoading.vue';
 
 export default defineComponent({
   name: 'SimpleList',
@@ -62,21 +62,6 @@ export default defineComponent({
       type: String,
       default: 'title',
     },
-  },
-
-  setup() {
-    const getItemComponent = (item) => {
-      if (item.url) {
-        return 'a';
-      }
-
-      return 'div';
-    };
-
-    // FIXME: vue-next doesn't support jsx yet
-    return {
-      getItemComponent,
-    };
   },
 });
 </script>

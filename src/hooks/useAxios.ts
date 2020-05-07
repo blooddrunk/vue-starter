@@ -1,10 +1,21 @@
-import { ref, computed } from 'vue';
+import { ref, computed, UnwrapRef } from 'vue';
+import { AxiosRequestConfig, CancelTokenSource, AxiosResponse } from 'axios';
 
 import useAsyncFn from './useAsyncFn';
 import axios from '@/utils/axios';
 
-const removeNonAxiosConfig = (configKey, requestConfig) => {
-  const removedConfig = {};
+type NonAxiosConfig = {
+  immediate?: boolean;
+  throwException?: boolean;
+};
+
+type UseAxiosConfig = NonAxiosConfig & AxiosRequestConfig;
+
+const removeNonAxiosConfig = (
+  configKey: (keyof NonAxiosConfig)[],
+  requestConfig: UseAxiosConfig
+) => {
+  const removedConfig: NonAxiosConfig = {};
   configKey.forEach((key) => {
     removedConfig[key] = requestConfig[key];
     delete requestConfig[key];
@@ -12,19 +23,27 @@ const removeNonAxiosConfig = (configKey, requestConfig) => {
   return removedConfig;
 };
 
-export default (url, requestConfig, initialData) => {
-  if (typeof url === 'string') {
-    requestConfig = requestConfig || {};
-    requestConfig.url = url;
-  } else {
-    initialData = requestConfig;
-    requestConfig = url;
-  }
+type UseAxiosReturn = ReturnType<typeof useAsyncFn> & {
+  response: ReturnType<typeof useAsyncFn>['data'];
+};
 
+type UseAxios<Result = unknown> = {
+  (requestConfig: UseAxiosConfig, initialData: Result): UseAxiosReturn;
+  (
+    url: string,
+    requestConfig: UseAxiosConfig,
+    initialData: Result
+  ): UseAxiosReturn;
+};
+
+export default <Result = unknown>(
+  requestConfig: UseAxiosConfig,
+  initialData?: Result
+) => {
   const isCancelled = ref(false);
 
-  let cancelSource;
-  const cancel = (message) => {
+  let cancelSource: CancelTokenSource;
+  const cancel = (message: string) => {
     if (cancelSource) {
       cancelSource.cancel(message);
       isCancelled.value = true;
@@ -36,7 +55,9 @@ export default (url, requestConfig, initialData) => {
     requestConfig
   );
 
-  const { data: response, request, ...rest } = useAsyncFn(
+  const { data: response, request, ...rest } = useAsyncFn<
+    Partial<AxiosResponse<Result>>
+  >(
     () => {
       cancelSource = axios.CancelToken.source();
 
@@ -52,19 +73,29 @@ export default (url, requestConfig, initialData) => {
   );
 
   const data = computed({
-    get: () => response.value.data,
-    set: (newValue) => (response.value.data = newValue),
+    get: () => {
+      if (response.value) {
+        return response.value.data;
+      }
+
+      return initialData;
+    },
+    set: (newValue) => {
+      if (response.value) {
+        response.value.data = newValue as UnwrapRef<Result>;
+      }
+    },
   });
 
   return {
     ...rest,
-    request: (...args) => {
+    request: (...args: unknown[]) => {
       if (rest.isLoading) {
         cancel(
           `[useAsync]: '${requestConfig.url}' cancelling request due to duplicate call`
         );
       }
-      request(...args);
+      return request(...args);
     },
     cancel,
     response,

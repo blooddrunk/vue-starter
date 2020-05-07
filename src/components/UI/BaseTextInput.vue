@@ -83,7 +83,7 @@ export default defineComponent({
   emits: {
     focus: null,
     blur: null,
-    'update:modelValue': ['String', Number],
+    'update:modelValue': null,
   },
 
   setup(props, { emit, slots }) {

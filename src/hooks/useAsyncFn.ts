@@ -1,16 +1,7 @@
-import { reactive, toRefs, ref } from 'vue';
-import type { Ref, ToRefs, UnwrapRef } from 'vue';
+import { ref, Ref, UnwrapRef } from 'vue';
 
-export type AsyncState<T> = {
-  isLoading: boolean;
-  isCompleted: boolean;
-  isSuccessful: boolean;
-  error?: Error | null;
-  data?: T | null;
-};
-
-export type AsyncFn<T = any, Args extends any[] = any[]> = (
-  ...args: Args | []
+export type AsyncFn<T = unknown, P extends unknown[] = unknown[]> = (
+  ...args: P | []
 ) => Promise<T>;
 
 export type AsyncFnOptions = Partial<{
@@ -18,31 +9,25 @@ export type AsyncFnOptions = Partial<{
   throwException: boolean;
 }>;
 
-export type AsyncFnReturn<T> = ToRefs<AsyncState<T>> & {
-  request: (...args: any[] | []) => Promise<void>;
-};
-
-export default <Result = any, Args extends any[] = any[]>(
+export default <Result = unknown, Args extends unknown[] = unknown[]>(
   fn: AsyncFn<Result, Args> | Ref<AsyncFn<Result, Args>>,
   initialData: Result | null = null,
   { immediate = false, throwException = false } = {}
-): AsyncFnReturn<Result> => {
+) => {
   const fnRef = ref(fn);
 
-  const state = reactive<AsyncState<Result>>({
-    isLoading: false,
-    isCompleted: false,
-    isSuccessful: false,
-    error: null,
-    data: initialData,
-  });
+  const isLoading = ref(false);
+  const isCompleted = ref(false);
+  const isSuccessful = ref(false);
+  const error = ref<Error | null>(null);
+  const data = ref<Result | null>(initialData);
 
   let lastPromise;
   const request = async (...args: Args | []) => {
-    state.error = null;
-    state.isCompleted = false;
-    state.isSuccessful = false;
-    state.isLoading = true;
+    isLoading.value = true;
+    isCompleted.value = false;
+    isSuccessful.value = false;
+    error.value = null;
 
     const promise = (lastPromise = fnRef.value(...args));
 
@@ -51,13 +36,13 @@ export default <Result = any, Args extends any[] = any[]>(
 
       if (lastPromise === promise) {
         // FIXME: might related to https://github.com/vuejs/vue-next/pull/1129
-        state.data = result as UnwrapRef<Result>;
-        state.isSuccessful = true;
+        isSuccessful.value = true;
+        data.value = result as UnwrapRef<Result>;
       }
     } catch (error) {
       if (lastPromise === promise) {
-        state.error = error;
-        state.isSuccessful = false;
+        error.value = error;
+        isSuccessful.value = false;
         console.error(error);
       }
 
@@ -65,8 +50,8 @@ export default <Result = any, Args extends any[] = any[]>(
         throw error;
       }
     } finally {
-      state.isCompleted = true;
-      state.isLoading = false;
+      isLoading.value = false;
+      isCompleted.value = true;
     }
   };
 
@@ -75,7 +60,11 @@ export default <Result = any, Args extends any[] = any[]>(
   }
 
   return {
-    ...toRefs(state),
+    isLoading,
+    isCompleted,
+    isSuccessful,
+    error,
+    data,
     request,
   };
 };

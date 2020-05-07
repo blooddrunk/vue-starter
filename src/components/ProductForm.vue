@@ -62,8 +62,14 @@ import BaseTextInput from '@/components/UI/BaseTextInput.vue';
 import useAxios from '@/hooks/useAxios';
 import useTimeout from '@/hooks/useTimeout';
 
-const useValidation = (product) => {
-  return product.name && product.price && product.inventory;
+type Product = {
+  name: string | null;
+  price: number | null;
+  inventory: number | null;
+};
+
+const useValidation = (product: Product) => {
+  return !!(product.name && product.price && product.inventory);
 };
 
 export default defineComponent({
@@ -78,7 +84,7 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const product = reactive({
+    const product = reactive<Product>({
       name: null,
       price: null,
       inventory: null,

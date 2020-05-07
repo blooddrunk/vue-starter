@@ -1,17 +1,10 @@
-import type { AxiosRequestConfig, AxiosInstance } from 'axios';
+import { AxiosRequestConfig, AxiosInstance } from 'axios';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
     cancellable?: boolean | string;
     __needValidation?: boolean;
-    transformData?: boolean | ((data: any) => any);
-    transformPayload?: ({
-      data,
-      params,
-    }: {
-      data?: any;
-      params?: any;
-    }) => { data?: any; params?: any };
+    transformData?: boolean | ((data: unknown) => unknown);
   }
 
   interface AxiosInstance {

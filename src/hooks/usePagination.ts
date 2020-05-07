@@ -1,5 +1,4 @@
-import { ref, computed, watch } from 'vue';
-import type { Ref } from 'vue';
+import { ref, computed, watch, Ref } from 'vue';
 
 import { isNumeric } from '@/utils/common';
 
