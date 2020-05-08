@@ -2,8 +2,8 @@
   <BaseLoading :loading="loading">
     <transition-group
       tag="ul"
-      enter-active-class="animated fadeInUp"
-      leave-active-class="animated fadeOutRight"
+      enter-active-class="animate__animated animate__fadeInUp"
+      leave-active-class="animate__animated animate__fadeOutRight"
     >
       <li v-for="item in items" :key="item[itemKey]">
         <div

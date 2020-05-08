@@ -3,7 +3,7 @@ import { Canceler } from 'axios';
 import { logger } from '@/utils/logger';
 
 export type RequestManagerOptions = {
-  logger?: (...args: any[]) => any;
+  logger?: (...args: unknown[]) => void;
 };
 
 export class RequestManager {

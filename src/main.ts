@@ -1,5 +1,8 @@
 import '~styles/main.scss';
-import 'animate.css';
+
+// FIXME: error after animates.css v4
+// import 'animate.css';
+
 import './assets/css/tailwind.css';
 
 import { createApp } from 'vue';

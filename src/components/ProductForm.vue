@@ -28,8 +28,8 @@
 
       <div class="tw-flex tw-items-center tw-justify-end tw-p-3">
         <transition
-          enter-active-class="animated jello"
-          leave-active-class="animated fadeOut"
+          enter-active-class="animate__animated animate__jello"
+          leave-active-class="animate__animated animate__fadeOut"
         >
           <div
             v-if="message"

@@ -26,8 +26,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref, computed, watch, watchEffect } from 'vue';
+
+type InputType =
+  | 'url'
+  | 'text'
+  | 'password'
+  | 'tel'
+  | 'search'
+  | 'number'
+  | 'email';
 
 export default defineComponent({
   name: 'BaseTextInput',
@@ -59,19 +68,8 @@ export default defineComponent({
     },
 
     type: {
-      type: String,
+      type: String as () => InputType,
       default: 'text',
-      validator(value) {
-        return [
-          'url',
-          'text',
-          'password',
-          'tel',
-          'search',
-          'number',
-          'email',
-        ].includes(value);
-      },
     },
 
     modelValue: {

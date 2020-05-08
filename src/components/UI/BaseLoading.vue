@@ -1,7 +1,7 @@
 <template>
   <transition
-    enter-active-class="animated fadeIn"
-    leave-active-class="animated fadeOut"
+    enter-active-class="animate__animated animate__fadeIn"
+    leave-active-class="animate__animated animate__fadeOut"
   >
     <div v-if="loading" key="loading">
       {{ text }}
