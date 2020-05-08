@@ -80,7 +80,7 @@ export default defineComponent({
   },
 
   emits: {
-    submit: Object,
+    submit: null,
   },
 
   setup(props, { emit }) {

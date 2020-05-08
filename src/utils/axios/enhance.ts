@@ -9,7 +9,6 @@ import Axios, {
 } from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
-import { isDev } from '@/utils/common';
 import { logger } from '@/utils/logger';
 import { RequestManager, RequestManagerOptions } from './RequestManager';
 
@@ -107,7 +106,7 @@ export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
   axios.CancelToken = Axios.CancelToken;
   axios.isCancel = Axios.isCancel;
 
-  if (isDev()) {
+  if (__DEV__) {
     setupDebugInterceptor(axios);
   }
 

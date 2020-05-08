@@ -1,6 +1,11 @@
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, Ref } from 'vue';
 
-export default (target, type, handler, options) => {
+export default <T extends EventTarget, E extends Event>(
+  target: T | Ref<T>,
+  type: string,
+  handler: EventListenerOrEventListenerObject,
+  options?: AddEventListenerOptions
+) => {
   const targetRef = ref(target);
 
   onMounted(() => {

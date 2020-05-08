@@ -1,6 +1,6 @@
 import { ref, watchEffect } from 'vue';
 
-export default (fn, ms: number, { immediate = true } = {}) => {
+export default (fn: Function, ms: number, { immediate = true } = {}) => {
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
   const delayRef = ref(ms);

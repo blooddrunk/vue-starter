@@ -29,7 +29,9 @@ module.exports = {
 
     // define plugins
     config.plugin('define').tap((definitions) => {
-      console.log(definitions);
+      definitions[0] = Object.assign(definitions[0], {
+        __DEV__: definitions[0]['process.env']['NODE_ENV'] !== 'production',
+      });
       return definitions;
     });
 

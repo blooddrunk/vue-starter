@@ -2,6 +2,20 @@ module.exports = {
   prefix: 'tw-',
   important: true,
 
+  purge: {
+    content: [`./public/**/*.html`, `./src/**/*.vue`],
+
+    options: {
+      whitelist: ['html', 'body'],
+      whitelistPatterns: [
+        /-(leave|enter|appear)(|-(to|from|active))$/,
+        /^(?!(|.*?:)cursor-move).+-move$/,
+        /^router-link(|-exact)-active$/,
+        /data-v-.*/,
+      ],
+    },
+  },
+
   theme: {
     extend: {
       borderWidth: {

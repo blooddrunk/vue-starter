@@ -1,6 +1,5 @@
 import { Canceler } from 'axios';
 
-import { isDev } from '@/utils/common';
 import { logger } from '@/utils/logger';
 
 export type RequestManagerOptions = {
@@ -47,7 +46,7 @@ export class RequestManager {
   }
 
   async log(message: string) {
-    if (isDev()) {
+    if (__DEV__) {
       return;
     }
 
