@@ -45,7 +45,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 
 import useTimeout from '@/hooks/useTimeout';

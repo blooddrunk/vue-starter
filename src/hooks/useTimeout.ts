@@ -1,6 +1,10 @@
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect, Ref } from 'vue';
 
-export default (fn: Function, ms: number, { immediate = true } = {}) => {
+export default (
+  fn: Function,
+  ms: number | Ref<number>,
+  { immediate = true } = {}
+) => {
   const isReady = ref(false);
 
   // TODO: to remain reactivity, ms has to be a ref
