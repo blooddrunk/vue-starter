@@ -6,6 +6,7 @@ import Axios, {
   CancelTokenSource,
   AxiosRequestConfig,
   AxiosResponse,
+  AxiosError,
 } from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
 
@@ -24,10 +25,22 @@ type AxiosRequestHelpers = {
   $patch: AxiosInstance['patch'];
 };
 
-export type EnhancedAxiosInstance = AxiosRequestHelpers & AxiosStatic;
+type AxiosExtraMethods = {
+  onRequest(callback: (config: AxiosRequestConfig) => AxiosRequestConfig): void;
+  onResponse<T = unknown>(
+    callback: (response: AxiosResponse<T>) => AxiosResponse<T>
+  ): void;
+  onError(callback: (error: AxiosError) => unknown): void;
+  onRequestError(callback: (error: AxiosError) => unknown): void;
+  onResponseError(callback: (error: AxiosError) => unknown): void;
+};
+
+export type EnhancedAxiosInstance = AxiosRequestHelpers &
+  AxiosExtraMethods &
+  AxiosStatic;
 
 // Request helpers ($get, $post, ...)
-const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
+const addRequestHelpers = (axiosInstance: EnhancedAxiosInstance) => {
   for (const method of [
     'request',
     'get',
@@ -47,6 +60,37 @@ const extendAxiosInstance = (axiosInstance: EnhancedAxiosInstance) => {
       );
     };
   }
+};
+
+const addExtraMethods = (axiosInstance: EnhancedAxiosInstance) => {
+  axiosInstance.onRequest = (fn) => {
+    axiosInstance.interceptors.request.use((config) => fn(config) || config);
+  };
+
+  axiosInstance.onResponse = (fn) => {
+    axiosInstance.interceptors.response.use(
+      (response) => fn(response) || response
+    );
+  };
+
+  axiosInstance.onRequestError = (fn) => {
+    axiosInstance.interceptors.request.use(
+      undefined,
+      (error) => fn(error) || Promise.reject(error)
+    );
+  };
+
+  axiosInstance.onResponseError = (fn) => {
+    axiosInstance.interceptors.response.use(
+      undefined,
+      (error) => fn(error) || Promise.reject(error)
+    );
+  };
+
+  axiosInstance.onError = (fn) => {
+    axiosInstance.onRequestError(fn);
+    axiosInstance.onResponseError(fn);
+  };
 };
 
 const setupDebugInterceptor = async (axiosInstance: EnhancedAxiosInstance) => {
@@ -101,7 +145,8 @@ export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
   ) as EnhancedAxiosInstance;
 
   // Extend axios proto
-  extendAxiosInstance(axios);
+  addRequestHelpers(axios);
+  addExtraMethods(axios);
 
   axios.CancelToken = Axios.CancelToken;
   axios.isCancel = Axios.isCancel;
@@ -139,19 +184,23 @@ export const takeLatest = (axios: EnhancedAxiosInstance) => {
   return cancellableCall;
 };
 
+// export const setupProgress = (axios: EnhancedAxiosInstance) => {
+
+// }
+
 export const setupRequestManager = (
   axios: EnhancedAxiosInstance,
   options: RequestManagerOptions = {}
 ) => {
   const requestManager = new RequestManager(options);
 
-  const getRequestId = ({ cancellable, method, url }: AxiosRequestConfig) => {
+  const getRequestId = ({ __cancellable, method, url }: AxiosRequestConfig) => {
     let requestId;
-    if (cancellable === true) {
+    if (__cancellable === true) {
       // auto-set requestId
       requestId = `${method}_${url}`;
-    } else if (typeof cancellable === 'string') {
-      requestId = cancellable;
+    } else if (typeof __cancellable === 'string') {
+      requestId = __cancellable;
     }
 
     return requestId;

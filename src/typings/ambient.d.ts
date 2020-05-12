@@ -2,9 +2,10 @@ import { AxiosRequestConfig, AxiosInstance } from 'axios';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
-    cancellable?: boolean | string;
+    __cancellable?: boolean | string;
+    __showProgress?: boolean;
     __needValidation?: boolean;
-    transformData?: boolean | ((data: unknown) => unknown);
+    __transformData?: boolean | ((data: unknown) => unknown);
   }
 
   interface AxiosInstance {

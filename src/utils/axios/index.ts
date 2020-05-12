@@ -47,7 +47,7 @@ export const setupInterceptor = (enhancedAxios: EnhancedAxiosInstance) => {
   enhancedAxios.interceptors.response.use(
     (response) => {
       const {
-        config: { __needValidation = true, transformData = true },
+        config: { __needValidation = true, __transformData = true },
       } = response;
 
       if (__needValidation) {
@@ -59,9 +59,9 @@ export const setupInterceptor = (enhancedAxios: EnhancedAxiosInstance) => {
         }
       }
 
-      if (typeof transformData === 'function') {
-        response.data = transformData(response.data);
-      } else if (transformData === true) {
+      if (typeof __transformData === 'function') {
+        response.data = __transformData(response.data);
+      } else if (__transformData === true) {
         response.data = defaultDataTransformer(response.data);
       }
 

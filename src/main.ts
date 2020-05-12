@@ -1,7 +1,8 @@
 import '@styles/main.scss';
 
 // FIXME: error after animates.css v4
-// import 'animate.css';
+import 'animate.css';
+import 'nprogress/nprogress.css';
 
 import './assets/css/tailwind.css';
 
