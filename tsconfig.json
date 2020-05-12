@@ -13,8 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@styles/*": ["src/assets/scss/*"],
-      "@use/*": ["src/hooks/*"]
+      "@styles/*": ["src/assets/scss/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "typeRoots": ["./src/typings", "./node_modules/@types"]
