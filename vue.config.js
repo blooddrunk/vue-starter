@@ -25,7 +25,8 @@ module.exports = {
   chainWebpack: (config) => {
     // webpack alias
     const srcDir = config.resolve.alias.get('@');
-    config.resolve.alias.set('~styles', path.join(srcDir, 'assets/scss'));
+    config.resolve.alias.set('@styles', path.join(srcDir, 'assets/scss'));
+    config.resolve.alias.set('@use', path.join(srcDir, 'hooks'));
 
     // define plugins
     config.plugin('define').tap((definitions) => {

@@ -1,4 +1,4 @@
-import '~styles/main.scss';
+import '@styles/main.scss';
 
 // FIXME: error after animates.css v4
 // import 'animate.css';

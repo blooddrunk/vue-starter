@@ -19,7 +19,7 @@ import { defineComponent, watch } from 'vue';
 
 import ProductForm from '@/components/ProductForm';
 import SimpleList from '@/components/SimpleList';
-import useAxios from '@/hooks/useAxios';
+import useAxios from '@use/useAxios';
 
 export default defineComponent({
   name: 'SimpleFormView',

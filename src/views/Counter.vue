@@ -48,8 +48,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 
-import useTimeout from '@/hooks/useTimeout';
-import useInterval from '@/hooks/useInterval';
+import useTimeout from '@use/useTimeout';
+import useInterval from '@use/useInterval';
 
 export default defineComponent({
   name: 'CounterView',
