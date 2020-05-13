@@ -6,7 +6,10 @@ import { RequestManager } from '@/utils/axios/RequestManager';
 export default ({ cancelOnUnmount = true } = {}) => {
   let requestManager = new RequestManager();
 
-  const enhance = (requestID: string, requestConfig: AxiosRequestConfig) => {
+  const enhanceAxios = (
+    requestID: string,
+    requestConfig: AxiosRequestConfig
+  ) => {
     if (!requestID) {
       throw new Error(`[useRequestManager]: requestID required`);
     }
@@ -24,21 +27,9 @@ export default ({ cancelOnUnmount = true } = {}) => {
     };
   };
 
-  const remove = (requestID: string) => {
-    requestManager && requestManager.remove(requestID);
-  };
-
-  const cancel = (requestID: string, reason: string) => {
-    requestManager && requestManager.cancel(requestID, reason);
-  };
-
-  const cancelAll = (reason: string) => {
-    requestManager && requestManager.cancelAll(reason);
-  };
-
   if (cancelOnUnmount) {
     onBeforeUnmount(() => {
-      cancelAll(
+      requestManager.cancelAll(
         `[useRequestManager]: cancelling request due to component unmount`
       );
     });
@@ -46,9 +37,6 @@ export default ({ cancelOnUnmount = true } = {}) => {
 
   return {
     requestManager,
-    enhance,
-    remove,
-    cancel,
-    cancelAll,
+    enhanceAxios,
   };
 };

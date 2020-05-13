@@ -14,6 +14,10 @@ export class RequestManager {
     this.requests = new Map();
   }
 
+  get pendingRequests(): number {
+    return this.requests.size;
+  }
+
   add(requestID: string, cancelFn: Canceler) {
     this.log(`Adding request '${requestID}'`);
 

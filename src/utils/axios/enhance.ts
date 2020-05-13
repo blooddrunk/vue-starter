@@ -9,6 +9,7 @@ import Axios, {
   AxiosError,
 } from 'axios';
 import defaultsDeep from 'lodash/defaultsDeep';
+import Nprogress from 'nprogress';
 
 import { logger } from '@/utils/logger';
 import { RequestManager, RequestManagerOptions } from './RequestManager';
@@ -95,7 +96,7 @@ const addRequestHelpers = (axiosInstance: EnhancedAxiosInstance) => {
 };
 
 const setupDebugInterceptor = async (axiosInstance: EnhancedAxiosInstance) => {
-  axiosInstance.interceptors.request.use(undefined, (error) => {
+  axiosInstance.onRequestError((error) => {
     logger.error('Request error:', error);
     return Promise.reject(error);
   });
@@ -165,7 +166,7 @@ export type CancellableFnType = {
   cancel?: Canceler;
 };
 
-export const takeLatest = (axios: EnhancedAxiosInstance) => {
+export const takeLatest = (axiosInstance: EnhancedAxiosInstance) => {
   let source: CancelTokenSource;
 
   const cancellableCall: CancellableFnType = (config) => {
@@ -176,7 +177,7 @@ export const takeLatest = (axios: EnhancedAxiosInstance) => {
     source = Axios.CancelToken.source();
     cancellableCall.cancel = source.cancel;
 
-    return axios({
+    return axiosInstance({
       ...config,
       cancelToken: source.token,
     });
@@ -185,9 +186,29 @@ export const takeLatest = (axios: EnhancedAxiosInstance) => {
   return cancellableCall;
 };
 
-// export const setupProgress = (axios: EnhancedAxiosInstance) => {
+export const setupProgress = (axiosInstance: EnhancedAxiosInstance) => {
+  let pendingRequests = 0;
 
-// }
+  axiosInstance.onRequest((config) => {
+    if (config.__showProgress !== false) {
+      pendingRequests++;
+    }
+
+    return config;
+  });
+  axiosInstance.onResponse((response) => {
+    if (response.config.__showProgress !== false) {
+      pendingRequests--;
+      if (pendingRequests <= 0) {
+        pendingRequests = 0;
+
+        Nprogress.done();
+      }
+    }
+
+    return response;
+  });
+};
 
 export const setupRequestManager = (
   axios: EnhancedAxiosInstance,
@@ -207,7 +228,7 @@ export const setupRequestManager = (
     return requestId;
   };
 
-  axios.interceptors.request.use((config) => {
+  axios.onRequest((config) => {
     const requestId = getRequestId(config);
 
     if (requestId) {
@@ -219,7 +240,7 @@ export const setupRequestManager = (
     return config;
   });
 
-  axios.interceptors.response.use((response) => {
+  axios.onResponse((response) => {
     const requestId = getRequestId(response.config);
     if (requestId) {
       requestManager.remove(requestId);

@@ -6,7 +6,7 @@ import { createAxiosInstance, EnhancedAxiosInstance } from './enhance';
 
 const apiRoot = process.env.VUE_APP_API_ROOT;
 
-export const defaultDataTransformer = (data = {}) => data;
+export const defaultDataTransformer = (data: unknown = {}) => data;
 
 export type ServerResponse = {
   errcode: number;
@@ -37,50 +37,48 @@ const validateStatus = (response: AxiosResponse) => {
 };
 
 export const setupInterceptor = (enhancedAxios: EnhancedAxiosInstance) => {
-  enhancedAxios.interceptors.request.use((config) => {
+  enhancedAxios.onRequest((config) => {
     //TODO: deal with request config here
     config = defaultsDeep(config, { method: 'GET' });
 
     return config;
   });
 
-  enhancedAxios.interceptors.response.use(
-    (response) => {
-      const {
-        config: { __needValidation = true, __transformData = true },
-      } = response;
+  enhancedAxios.onResponse((response) => {
+    const {
+      config: { __needValidation = true, __transformData = true },
+    } = response;
 
-      if (__needValidation) {
-        try {
-          response.data = validateResponse(response.data);
-        } catch (error) {
-          error.config = response.config;
-          throw error;
-        }
-      }
-
-      if (typeof __transformData === 'function') {
-        response.data = __transformData(response.data);
-      } else if (__transformData === true) {
-        response.data = defaultDataTransformer(response.data);
-      }
-
-      return response;
-    },
-    // only care about response error
-    (error) => {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        const handled = validateStatus(error.response);
-        if (typeof handled === 'string') {
-          error.message = handled;
-        }
-
-        return Promise.reject(error);
+    if (__needValidation) {
+      try {
+        response.data = validateResponse(response.data as ServerResponse);
+      } catch (error) {
+        error.config = response.config;
+        throw error;
       }
     }
-  );
+
+    if (typeof __transformData === 'function') {
+      response.data = __transformData(response.data);
+    } else if (__transformData === true) {
+      response.data = defaultDataTransformer(response.data as ServerResponse);
+    }
+
+    return response;
+  });
+
+  enhancedAxios.onError((error) => {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      const handled = validateStatus(error.response);
+      if (typeof handled === 'string') {
+        error.message = handled;
+      }
+
+      return Promise.reject(error);
+    }
+  });
 };
 
 const axios = createAxiosInstance({
