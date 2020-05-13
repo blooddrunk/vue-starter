@@ -96,94 +96,31 @@ const addRequestHelpers = (axiosInstance: EnhancedAxiosInstance) => {
 };
 
 const setupDebugInterceptor = async (axiosInstance: EnhancedAxiosInstance) => {
+  axiosInstance.onResponse((res) => {
+    logger.success(
+      `[${res.status}]`,
+      `[${res.config.method?.toUpperCase()}]`,
+      res.config.url
+    );
+
+    logger.info(res);
+
+    return res;
+  });
+
   axiosInstance.onRequestError((error) => {
     logger.error('Request error:', error);
     return Promise.reject(error);
   });
 
-  axiosInstance.interceptors.response.use(
-    (res) => {
-      logger.success(
-        `[${res.status}]`,
-        `[${res.config.method?.toUpperCase()}]`,
-        res.config.url
-      );
-
-      logger.info(res);
-
-      return res;
-    },
-    (error) => {
-      if (axiosInstance.isCancel(error)) {
-        logger.warn(error);
-      } else {
-        logger.error('error', 'Response error:', error);
-      }
-      return Promise.reject(error);
+  axiosInstance.onResponseError((error) => {
+    if (axiosInstance.isCancel(error)) {
+      logger.warn(error);
+    } else {
+      logger.error('error', 'Response error:', error);
     }
-  );
-};
-
-export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
-  const headers = {
-    common: {
-      Accept: 'application/json, text/plain, */*',
-    },
-    delete: {},
-    get: {},
-    head: {},
-    post: {},
-    put: {},
-    patch: {},
-  };
-
-  const axiosOptions: AxiosRequestConfig = {
-    headers,
-  };
-
-  // Create new axios instance
-  const axios = Axios.create(
-    defaultsDeep(extraOptions, axiosOptions)
-  ) as EnhancedAxiosInstance;
-
-  // Extend axios instance
-  addExtraMethods(axios);
-  addRequestHelpers(axios);
-
-  axios.CancelToken = Axios.CancelToken;
-  axios.isCancel = Axios.isCancel;
-
-  if (__DEV__) {
-    setupDebugInterceptor(axios);
-  }
-
-  return axios;
-};
-
-export type CancellableFnType = {
-  (config: AxiosRequestConfig): AxiosPromise;
-} & {
-  cancel?: Canceler;
-};
-
-export const takeLatest = (axiosInstance: EnhancedAxiosInstance) => {
-  let source: CancelTokenSource;
-
-  const cancellableCall: CancellableFnType = (config) => {
-    if (source) {
-      source.cancel(`[${config.url}]: Only one request allowed at a time.`);
-    }
-
-    source = Axios.CancelToken.source();
-    cancellableCall.cancel = source.cancel;
-
-    return axiosInstance({
-      ...config,
-      cancelToken: source.token,
-    });
-  };
-
-  return cancellableCall;
+    return Promise.reject(error);
+  });
 };
 
 export const setupProgress = (axiosInstance: EnhancedAxiosInstance) => {
@@ -191,11 +128,16 @@ export const setupProgress = (axiosInstance: EnhancedAxiosInstance) => {
 
   axiosInstance.onRequest((config) => {
     if (config.__showProgress !== false) {
+      if (pendingRequests === 0) {
+        Nprogress.start();
+      }
+
       pendingRequests++;
     }
 
     return config;
   });
+
   axiosInstance.onResponse((response) => {
     if (response.config.__showProgress !== false) {
       pendingRequests--;
@@ -208,6 +150,32 @@ export const setupProgress = (axiosInstance: EnhancedAxiosInstance) => {
 
     return response;
   });
+
+  axiosInstance.onError((error) => {
+    if (error.config.__showProgress === false) {
+      return;
+    }
+
+    pendingRequests--;
+
+    if (Axios.isCancel(error)) {
+      return;
+    }
+
+    Nprogress.done();
+  });
+
+  const onProgress = (event: ProgressEvent) => {
+    if (!pendingRequests) {
+      return;
+    }
+
+    const progress = event.loaded / (event.total * pendingRequests);
+    Nprogress.set(Math.min(1, progress));
+  };
+
+  axiosInstance.defaults.onUploadProgress = onProgress;
+  axiosInstance.defaults.onDownloadProgress = onProgress;
 };
 
 export const setupRequestManager = (
@@ -256,4 +224,68 @@ export const setupRequestManager = (
   axios.cancelAll = (reason) => {
     requestManager.cancelAll(reason);
   };
+};
+
+export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
+  const headers = {
+    common: {
+      Accept: 'application/json, text/plain, */*',
+    },
+    delete: {},
+    get: {},
+    head: {},
+    post: {},
+    put: {},
+    patch: {},
+  };
+
+  const axiosOptions: AxiosRequestConfig = {
+    headers,
+  };
+
+  // Create new axios instance
+  const axios = Axios.create(
+    defaultsDeep(axiosOptions, extraOptions)
+  ) as EnhancedAxiosInstance;
+
+  // Extend axios instance
+  addExtraMethods(axios);
+  addRequestHelpers(axios);
+
+  axios.CancelToken = Axios.CancelToken;
+  axios.isCancel = Axios.isCancel;
+
+  if (__DEV__) {
+    setupDebugInterceptor(axios);
+  }
+
+  setupProgress(axios);
+
+  return axios;
+};
+
+export type CancellableFnType = {
+  (config: AxiosRequestConfig): AxiosPromise;
+} & {
+  cancel?: Canceler;
+};
+
+export const takeLatest = (axiosInstance: EnhancedAxiosInstance) => {
+  let source: CancelTokenSource;
+
+  const cancellableCall: CancellableFnType = (config) => {
+    if (source) {
+      source.cancel(`[${config.url}]: Only one request allowed at a time.`);
+    }
+
+    source = Axios.CancelToken.source();
+    cancellableCall.cancel = source.cancel;
+
+    return axiosInstance({
+      ...config,
+      cancelToken: source.token,
+    });
+  };
+
+  return cancellableCall;
 };
