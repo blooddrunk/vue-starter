@@ -14,16 +14,6 @@ import { logger } from '@/utils/logger';
 import { RequestManager, RequestManagerOptions } from './RequestManager';
 
 // stolen from nuxt-axios https://github.com/nuxt-community/axios-module
-type AxiosRequestHelpers = {
-  $request: AxiosInstance['request'];
-  $get: AxiosInstance['get'];
-  $delete: AxiosInstance['delete'];
-  $head: AxiosInstance['head'];
-  $options: AxiosInstance['options'];
-  $post: AxiosInstance['post'];
-  $put: AxiosInstance['put'];
-  $patch: AxiosInstance['patch'];
-};
 
 type AxiosExtraMethods = {
   onRequest(callback: (config: AxiosRequestConfig) => AxiosRequestConfig): void;
@@ -35,32 +25,20 @@ type AxiosExtraMethods = {
   onResponseError(callback: (error: AxiosError) => unknown): void;
 };
 
-export type EnhancedAxiosInstance = AxiosRequestHelpers &
-  AxiosExtraMethods &
-  AxiosStatic;
-
-// Request helpers ($get, $post, ...)
-const addRequestHelpers = (axiosInstance: EnhancedAxiosInstance) => {
-  for (const method of [
-    'request',
-    'get',
-    'delete',
-    'head',
-    'options',
-    'post',
-    'put',
-    'patch',
-  ] as const) {
-    type AxiosRequestHelpersKey = keyof AxiosRequestHelpers;
-    axiosInstance[`$${method}` as AxiosRequestHelpersKey] = function (
-      ...args: unknown[]
-    ) {
-      return (axiosInstance[method] as any)(...args).then(
-        (res: AxiosResponse) => res && res.data
-      );
-    };
-  }
+type AxiosRequestHelpers = {
+  $request: AxiosInstance['request'];
+  $get: AxiosInstance['get'];
+  $delete: AxiosInstance['delete'];
+  $head: AxiosInstance['head'];
+  $options: AxiosInstance['options'];
+  $post: AxiosInstance['post'];
+  $put: AxiosInstance['put'];
+  $patch: AxiosInstance['patch'];
 };
+
+export type EnhancedAxiosInstance = AxiosStatic &
+  AxiosExtraMethods &
+  AxiosRequestHelpers;
 
 const addExtraMethods = (axiosInstance: EnhancedAxiosInstance) => {
   axiosInstance.onRequest = (fn) => {
@@ -91,6 +69,29 @@ const addExtraMethods = (axiosInstance: EnhancedAxiosInstance) => {
     axiosInstance.onRequestError(fn);
     axiosInstance.onResponseError(fn);
   };
+};
+
+// Request helpers ($get, $post, ...)
+const addRequestHelpers = (axiosInstance: EnhancedAxiosInstance) => {
+  for (const method of [
+    'request',
+    'get',
+    'delete',
+    'head',
+    'options',
+    'post',
+    'put',
+    'patch',
+  ] as const) {
+    type AxiosRequestHelpersKey = keyof AxiosRequestHelpers;
+    axiosInstance[`$${method}` as AxiosRequestHelpersKey] = function (
+      ...args: unknown[]
+    ) {
+      return (axiosInstance[method] as any)(...args).then(
+        (res: AxiosResponse) => res && res.data
+      );
+    };
+  }
 };
 
 const setupDebugInterceptor = async (axiosInstance: EnhancedAxiosInstance) => {
@@ -144,9 +145,9 @@ export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
     defaultsDeep(extraOptions, axiosOptions)
   ) as EnhancedAxiosInstance;
 
-  // Extend axios proto
-  addRequestHelpers(axios);
+  // Extend axios instance
   addExtraMethods(axios);
+  addRequestHelpers(axios);
 
   axios.CancelToken = Axios.CancelToken;
   axios.isCancel = Axios.isCancel;
@@ -159,7 +160,7 @@ export const createAxiosInstance = (extraOptions: AxiosRequestConfig) => {
 };
 
 export type CancellableFnType = {
-  (config: any): AxiosPromise;
+  (config: AxiosRequestConfig): AxiosPromise;
 } & {
   cancel?: Canceler;
 };
