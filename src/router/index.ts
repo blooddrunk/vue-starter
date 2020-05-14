@@ -3,6 +3,11 @@ import NProgress from 'nprogress';
 
 export const routerHistory = createWebHistory();
 
+// ? how to type a route meta?
+export type RouteMeta = {
+  layout?: 'default' | 'error' | 'empty';
+};
+
 export const routes = [
   {
     path: '/',
@@ -27,6 +32,21 @@ export const routes = [
     name: 'SimpleForm',
     component: () => import('../views/SimpleForm.vue'),
   },
+
+  {
+    path: '/404',
+    name: '404',
+    meta: {
+      layout: 'error',
+    } as RouteMeta,
+    component: () => import('../views/Error.vue'),
+  },
+
+  // !FIXME: error
+  // {
+  //   path: '*',
+  //   redirect: { name: '404' },
+  // },
 ];
 
 const router = createRouter({

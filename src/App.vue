@@ -1,29 +1,32 @@
 <template>
-  <main class="tw-min-h-screen tw-p-6 dark:tw-bg-gray-800">
-    <section class="tw-flex tw-flex-col tw-items-center tw-pt-20">
-      <router-link to="/">
-        <h2 class="tw-py-5 tw-text-3xl tw-text-indigo-500 tw-font-bold">
-          Vue 3
-        </h2>
-      </router-link>
-
-      <div class="tw-container">
-        <router-view></router-view>
-      </div>
-    </section>
-  </main>
+  <component :is="layoutComponent">
+    <router-view></router-view>
+  </component>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+import DefaultLayout from './layouts/Default';
 
 // import { provideAxios } from '@/context/axios';
 
 export default defineComponent({
   name: 'App',
 
+  components: {
+    DefaultLayout,
+  },
+
   setup() {
-    // provideAxios();
+    const route = useRoute();
+    const layoutComponent = computed(
+      () => route.meta.layout || 'DefaultLayout'
+    );
+    return {
+      layoutComponent,
+    };
   },
 });
 </script>

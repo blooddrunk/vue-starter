@@ -162,7 +162,11 @@ export const setupProgress = (axiosInstance: EnhancedAxiosInstance) => {
       return;
     }
 
-    Nprogress.done();
+    if (pendingRequests <= 0) {
+      pendingRequests = 0;
+
+      Nprogress.done();
+    }
   });
 
   const onProgress = (event: ProgressEvent) => {

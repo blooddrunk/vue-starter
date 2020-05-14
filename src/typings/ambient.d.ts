@@ -1,4 +1,7 @@
 import { AxiosRequestConfig, AxiosInstance } from 'axios';
+import { RouteLocationNormalizedLoaded } from 'vue-router';
+
+import { RouteMeta } from '@/router';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
@@ -28,5 +31,12 @@ declare global {
       VUE_APP_PUBLIC_PATH: string;
       VUE_APP_JSON_SERVER_PATH: string;
     }
+  }
+}
+
+// FIXME: not optimal?
+declare module 'vue-router' {
+  interface RouteLocationNormalizedLoaded {
+    meta: RouteMeta;
   }
 }
