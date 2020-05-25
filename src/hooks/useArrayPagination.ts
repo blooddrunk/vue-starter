@@ -1,11 +1,21 @@
-import { ref, computed, Ref } from 'vue';
+import { ref, computed, Ref, ComputedRef } from 'vue';
 
-import usePagination, { PaginationOptions } from './usePagination';
+import {
+  usePagination,
+  UsePaginationOptions,
+  UsePaginationReturn,
+} from './usePagination';
 
-export default function useArrayPagination<T extends any>(
+export type UseArrayPaginationReturn<
+  T extends unknown
+> = UsePaginationReturn & {
+  result: ComputedRef<T[]>;
+};
+
+export const useArrayPagination = <T extends unknown>(
   array: T[] | Ref<T[]>,
-  paginationOptions: PaginationOptions = {}
-) {
+  paginationOptions: UsePaginationOptions = {}
+): UseArrayPaginationReturn<T> => {
   const arrayRef = ref(array);
 
   const pagination = usePagination({
@@ -30,4 +40,4 @@ export default function useArrayPagination<T extends any>(
     ...pagination,
     result,
   };
-}
+};

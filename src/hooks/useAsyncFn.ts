@@ -1,4 +1,4 @@
-import { ref, Ref, UnwrapRef } from 'vue';
+import { ref, Ref } from 'vue';
 
 export type AsyncFn<T = unknown, P extends unknown[] = unknown[]> = (
   ...args: P | []
@@ -9,18 +9,33 @@ export type AsyncFnOptions = Partial<{
   throwException: boolean;
 }>;
 
-export default <Result = unknown, Args extends unknown[] = unknown[]>(
+export type UseAsyncFnReturn<
+  Result = unknown,
+  Args extends unknown[] = unknown[]
+> = {
+  isLoading: Ref<boolean>;
+  isCompleted: Ref<boolean>;
+  isSuccessful: Ref<boolean>;
+  error: Ref<Error | null>;
+  data: Ref<Result | null>;
+  request: (...args: Args | []) => Promise<void>;
+};
+
+export const useAsyncFn = <
+  Result = unknown,
+  Args extends unknown[] = unknown[]
+>(
   fn: AsyncFn<Result, Args> | Ref<AsyncFn<Result, Args>>,
   initialData: Result | null = null,
   { immediate = false, throwException = false } = {}
-) => {
+): UseAsyncFnReturn<Result, Args> => {
   const fnRef = ref(fn);
 
   const isLoading = ref(false);
   const isCompleted = ref(false);
   const isSuccessful = ref(false);
   const error = ref<Error | null>(null);
-  const data = ref<Result | null>(initialData);
+  const data = ref<Result | null>(initialData) as Ref<Result | null>;
 
   let lastPromise;
   const request = async (...args: Args | []) => {
@@ -37,7 +52,7 @@ export default <Result = unknown, Args extends unknown[] = unknown[]>(
       if (lastPromise === promise) {
         // FIXME: might related to https://github.com/vuejs/vue-next/pull/1129
         isSuccessful.value = true;
-        data.value = result as UnwrapRef<Result>;
+        data.value = result;
       }
     } catch (error) {
       if (lastPromise === promise) {

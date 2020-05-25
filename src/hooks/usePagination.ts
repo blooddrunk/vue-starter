@@ -1,4 +1,4 @@
-import { ref, computed, watch, Ref } from 'vue';
+import { ref, computed, watch, Ref, ComputedRef } from 'vue';
 
 import { isNumeric } from '@/utils/common';
 
@@ -18,17 +18,31 @@ const minmax = (value: number, min: number, max: number) => {
   return value;
 };
 
-export type PaginationOptions = Partial<{
+export type UsePaginationOptions = Partial<{
   pageSize: number | Ref<number>;
   total: number | Ref<number>;
   currentPage: number | Ref<number>;
 }>;
 
-export default function usePagination({
+export type UsePaginationReturn = {
+  pageSize: ComputedRef<number>;
+  total: ComputedRef<number>;
+  currentPage: ComputedRef<number>;
+  lastPage: ComputedRef<number>;
+  offset: ComputedRef<number>;
+  isFirst: ComputedRef<boolean>;
+  isLast: ComputedRef<boolean>;
+  next: () => void;
+  prev: () => void;
+  first: () => void;
+  last: () => void;
+};
+
+export const usePagination = ({
   pageSize: defaultPageSize = 10,
   total: defaultTotal = 0,
   currentPage: defaultPage = 1,
-}: PaginationOptions = {}) {
+}: UsePaginationOptions = {}): UsePaginationReturn => {
   const _currentPage = ref(defaultPage);
   const _pageSize = ref(defaultPageSize);
   const _total = ref(defaultTotal);
@@ -104,4 +118,4 @@ export default function usePagination({
     first,
     last,
   };
-}
+};

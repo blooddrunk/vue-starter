@@ -1,10 +1,13 @@
 import { ref, watchEffect, Ref } from 'vue';
 
-export default (
-  fn: Function,
+export const useInterval = (
+  fn: () => void,
   ms: number | Ref<number>,
   { immediate = true } = {}
-) => {
+): {
+  set: () => void;
+  clear: () => void;
+} => {
   // TODO: to remain reactivity, ms has to be a ref
   // or ??
   const delayRef = ref(ms);

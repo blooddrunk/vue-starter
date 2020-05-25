@@ -30,8 +30,8 @@ import {
 import SimpleList from '@/components/SimpleList';
 import SimplePagination from '@/components/SimplePagination';
 import SearchHNForm from '@/components/SearchHNForm';
-import useAxios from '@/hooks/useAxios';
-import usePagination from '@/hooks/usePagination';
+import { useAxios } from '@/hooks/useAxios';
+import { usePagination } from '@/hooks/usePagination';
 
 export default defineComponent({
   name: 'SimpleListView',

@@ -1,10 +1,14 @@
 import { ref, watchEffect, Ref } from 'vue';
 
-export default (
-  fn: Function,
+export const useTimeout = (
+  fn: () => void,
   ms: number | Ref<number>,
   { immediate = true } = {}
-) => {
+): {
+  isReady: Ref<boolean>;
+  set: () => void;
+  clear: () => void;
+} => {
   const isReady = ref(false);
 
   // TODO: to remain reactivity, ms has to be a ref

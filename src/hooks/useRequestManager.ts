@@ -3,7 +3,7 @@ import Axios, { AxiosRequestConfig } from 'axios';
 
 import { RequestManager } from '@/utils/axios/RequestManager';
 
-export default ({ cancelOnUnmount = true } = {}) => {
+export const useRequestManager = ({ cancelOnUnmount = true } = {}) => {
   let requestManager = new RequestManager();
 
   const enhanceAxios = (

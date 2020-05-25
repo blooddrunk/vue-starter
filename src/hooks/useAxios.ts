@@ -1,7 +1,7 @@
 import { ref, computed, UnwrapRef } from 'vue';
 import { AxiosRequestConfig, CancelTokenSource, AxiosResponse } from 'axios';
 
-import useAsyncFn from './useAsyncFn';
+import { useAsyncFn, UseAsyncFnReturn } from './useAsyncFn';
 import axios from '@/utils/axios';
 
 type NonAxiosConfig = {
@@ -10,6 +10,20 @@ type NonAxiosConfig = {
 };
 
 type UseAxiosConfig = NonAxiosConfig & AxiosRequestConfig;
+
+type UseAxiosReturn = UseAsyncFnReturn & {
+  response: ReturnType<typeof useAsyncFn>['data'];
+  cancel: (message?: string) => void;
+};
+
+type UseAxios<Result = unknown> = {
+  (requestConfig: UseAxiosConfig, initialData: Result): UseAxiosReturn;
+  (
+    url: string,
+    requestConfig: UseAxiosConfig,
+    initialData: Result
+  ): UseAxiosReturn;
+};
 
 const removeNonAxiosConfig = (
   configKey: (keyof NonAxiosConfig)[],
@@ -23,20 +37,7 @@ const removeNonAxiosConfig = (
   return removedConfig;
 };
 
-type UseAxiosReturn = ReturnType<typeof useAsyncFn> & {
-  response: ReturnType<typeof useAsyncFn>['data'];
-};
-
-type UseAxios<Result = unknown> = {
-  (requestConfig: UseAxiosConfig, initialData: Result): UseAxiosReturn;
-  (
-    url: string,
-    requestConfig: UseAxiosConfig,
-    initialData: Result
-  ): UseAxiosReturn;
-};
-
-export default <Result = unknown>(
+export const useAxios = <Result = unknown>(
   requestConfig: UseAxiosConfig,
   initialData?: Result
 ) => {

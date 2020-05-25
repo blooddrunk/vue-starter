@@ -1,6 +1,6 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, Ref } from 'vue';
 
-export default (query: string) => {
+export const useMediaQuery = (query: string): Ref<boolean> => {
   let mql = window.matchMedia(query);
 
   const matches = ref(mql ? mql.matches : false);
