@@ -18,6 +18,13 @@ declare module 'axios' {
 }
 
 declare global {
+  interface HTMLElement {
+    _observe?: {
+      init: boolean;
+      observer: IntersectionObserver;
+    };
+  }
+
   interface Console {
     bark: typeof console.log;
     success: typeof console.log;

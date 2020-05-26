@@ -1,31 +1,11 @@
 import { onBeforeUnmount } from 'vue';
-import Axios, { AxiosRequestConfig } from 'axios';
 
 import { RequestManager } from '@/utils/axios/RequestManager';
 
-export const useRequestManager = ({ cancelOnUnmount = true } = {}) => {
-  let requestManager = new RequestManager();
-
-  const enhanceAxios = (
-    requestID: string,
-    requestConfig: AxiosRequestConfig
-  ) => {
-    if (!requestID) {
-      throw new Error(`[useRequestManager]: requestID required`);
-    }
-
-    if (!requestManager) {
-      requestManager = new RequestManager();
-    }
-
-    const source = Axios.CancelToken.source();
-    requestManager.add(requestID, source.cancel);
-
-    return {
-      ...requestConfig,
-      cancelToken: source.token,
-    };
-  };
+export const useRequestManager = ({
+  cancelOnUnmount = true,
+} = {}): RequestManager => {
+  const requestManager = new RequestManager();
 
   if (cancelOnUnmount) {
     onBeforeUnmount(() => {
@@ -35,8 +15,5 @@ export const useRequestManager = ({ cancelOnUnmount = true } = {}) => {
     });
   }
 
-  return {
-    requestManager,
-    enhanceAxios,
-  };
+  return requestManager;
 };

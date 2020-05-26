@@ -50,7 +50,10 @@ export class BaseLogger {
   error = this.createDefaultLogger('error');
   success = this.createDefaultLogger('success');
 
-  bark(bark: {}, l = bark.toString().length / 1.66) {
+  bark(
+    bark: string | number | Array<unknown> | Record<string, unknown>,
+    l = bark.toString().length / 1.66
+  ): void {
     console.log(
       `
          /‾${`‾‾`.repeat(l)}‾

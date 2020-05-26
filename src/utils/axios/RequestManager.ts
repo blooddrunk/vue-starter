@@ -35,6 +35,7 @@ export class RequestManager {
 
   cancel(requestID: string, reason = '') {
     if (this.requests.has(requestID)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.requests.get(requestID)!(reason);
       this.remove(requestID);
       this.log(`Request '${requestID}' cancelled`);
