@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import NProgress from 'nprogress';
 
-export const routerHistory = createWebHistory();
+export const routerHistory = createWebHistory(process.env.VUE_APP_PUBLIC_PATH);
 
 // ? how to type a route meta?
 export type RouteMeta = {
@@ -43,10 +43,10 @@ export const routes = [
   },
 
   // !FIXME: error
-  // {
-  //   path: '*',
-  //   redirect: { name: '404' },
-  // },
+  {
+    path: '/:catchAll(.*)',
+    redirect: { name: '404' },
+  },
 ];
 
 const router = createRouter({
