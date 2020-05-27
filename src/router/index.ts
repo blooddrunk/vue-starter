@@ -34,6 +34,12 @@ export const routes = [
   },
 
   {
+    path: '/directive-intersection-observer',
+    name: 'DirectiveIntersectionObserver',
+    component: () => import('../views/DirectiveIntersectionObserver.vue'),
+  },
+
+  {
     path: '/404',
     name: '404',
     meta: {

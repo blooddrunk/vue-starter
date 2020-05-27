@@ -33,6 +33,11 @@ export default {
         text: 'Simple form',
         to: '/simple-form',
       },
+
+      {
+        text: 'Directive(Intersection Observer)',
+        to: '/directive-intersection-observer',
+      },
     ],
   }),
 };

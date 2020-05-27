@@ -1,7 +1,7 @@
 // stolen from Vuetify https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/directives/intersect/index.ts
 import { DirectiveBinding, Directive } from 'vue';
 
-type ObserveHandler = (
+export type ObserveHandler = (
   entries: IntersectionObserverEntry[],
   observer: IntersectionObserver,
   isIntersecting: boolean
