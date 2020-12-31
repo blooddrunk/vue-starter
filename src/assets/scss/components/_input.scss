@@ -1,0 +1,7 @@
+.input {
+  @apply tw-bg-white tw-border tw-border-gray-300 tw-rounded-lg tw-py-2 tw-px-4 tw-block tw-w-full tw-appearance-none tw-leading-normal;
+
+  &:focus {
+    @apply tw-outline-none tw-ring tw-ring-green-400;
+  }
+}

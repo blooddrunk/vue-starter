@@ -1,0 +1,25 @@
+@use 'components';
+@use 'override';
+
+html {
+  @apply tw-font-sans tw-text-dark tw-antialiased;
+  @apply tw-overflow-hidden;
+}
+
+:root {
+  --color-primary: theme('colors.green.300');
+  --color-secondary: theme('colors.blue.300');
+  --color-tertiary: theme('colors.cyan.400');
+  --color-light: theme('colors.gray.300');
+  --color-medium: theme('colors.gray.500');
+  --color-dark: theme('colors.gray.700');
+}
+
+::-webkit-scrollbar {
+  @apply tw-w-2;
+  @apply tw-h-2;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply tw-bg-medium tw-rounded-md;
+}

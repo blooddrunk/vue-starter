@@ -1,0 +1,13 @@
+{
+  "watch": [
+    "package.json",
+    "vue.config.js",
+    "babel.config.js",
+    "tailwind.config.js",
+    "postcss.config.js",
+    ".env",
+    ".env.development"
+  ],
+  "ignore": ["src/**/*.spec.ts", "src/graphql/*"],
+  "exec": "npm run serve"
+}
