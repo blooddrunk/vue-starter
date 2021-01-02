@@ -9,6 +9,7 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",

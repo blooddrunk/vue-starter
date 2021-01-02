@@ -13,6 +13,8 @@
   "dependencies": {
     "@icon-park/vue-next": "^1.1.5",
     "@tailwindcss/postcss7-compat": "^2.0.1",
+    "@vee-validate/i18n": "^4.0.2",
+    "@vee-validate/rules": "^4.0.4",
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",
     "core-js": "^3.8.1",
