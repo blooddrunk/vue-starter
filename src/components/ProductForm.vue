@@ -2,15 +2,20 @@
   <div class="tw-p-3 tw-shadow-md">
     <h1 class="tw-py-2 tw-text-semibold tw-text-xl">Enter Product</h1>
 
-    <form @submit="onSubmit" @reset.prevent="onReset">
-      <BaseTextInput
-        v-model="product.name"
+    <Form
+      as="el-form"
+      :validation-schema="validationSchema"
+      @submit="onSubmit"
+      #default="{ isSubmitting, meta }"
+    >
+      <ElementInput
         name="name"
         label="Product Name"
-        placeholder="Please enter product name"
-      ></BaseTextInput>
+        required
+        placeholder="Please Enter Product Name"
+      ></ElementInput>
 
-      <BaseTextInput
+      <!-- <BaseTextInput
         v-model="product.price"
         name="price"
         label="Product Price"
@@ -22,10 +27,10 @@
         name="invetory"
         label="Product Inventory"
         type="number"
-      ></BaseTextInput>
+      ></BaseTextInput> -->
 
       <div class="tw-flex tw-items-center tw-justify-end tw-p-3">
-        <transition
+        <!-- <transition
           enter-active-class="animate__animated animate__jello"
           leave-active-class="animate__animated animate__fadeOut"
         >
@@ -38,29 +43,27 @@
           >
             {{ message }}
           </div>
-        </transition>
+        </transition> -->
 
         <button
           class="button_primary"
           type="submit"
-          :disabled="!isValid || isSubmitting"
+          :disabled="!meta.valid || isSubmitting"
         >
           {{ isSubmitting ? 'Submitting...' : 'Submit' }}
         </button>
         <button class="button_normal" type="reset">Reset</button>
       </div>
-    </form>
+    </Form>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, watchEffect } from 'vue';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
+import { defineComponent } from 'vue';
+import { Form, FormActions } from 'vee-validate';
 
-import BaseTextInput from '@/components/UI/BaseTextInput.vue';
-import { useAxios } from '@/hooks/useAxios';
-import { useTimeout } from '@/hooks/useTimeout';
+import axios from '@/utils/axios';
+import ElementInput from '@/components/UI/Form/ElementInput.ts';
 
 export type Product = {
   id?: string | number;
@@ -69,33 +72,20 @@ export type Product = {
   inventory?: number | null;
 };
 
-const initialValues: Product = {
-  name: null,
-  price: null,
-  inventory: null,
-};
-
-const useValidation = (product: Product) => {
-  return !!(product.name && product.price && product.inventory);
-};
-
 const useSubmit = (product: Product) =>
-  useAxios<Product>(
-    {
-      url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
-      method: 'post',
-      data: product,
-      immediate: false,
-      __needValidation: false,
-    },
-    {}
-  );
+  axios.request<Product>({
+    url: `${process.env.VUE_APP_JSON_SERVER_PATH}products`,
+    method: 'post',
+    data: product,
+    __needValidation: false,
+  });
 
 export default defineComponent({
   name: 'ProductForm',
 
   components: {
-    BaseTextInput,
+    Form,
+    ElementInput,
   },
 
   emits: {
@@ -103,61 +93,40 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    const {
-      values: product,
-      handleSubmit,
-      handleReset,
-      isSubmitting,
-      setValues,
-    } = useForm<Product>({
-      initialValues,
-    });
-
-    const isValid = ref(false);
-
-    watchEffect(() => {
-      isValid.value = useValidation(product);
-    });
-
-    const { data, error, request, isCompleted } = useSubmit(product);
-
-    const onSubmit = handleSubmit(async () => {
-      await request();
-      onReset();
-    });
-
-    const onReset = () => {
-      handleReset();
-      setValues(initialValues);
+    const validationSchema = {
+      name: 'required',
+      price: 'required',
+      inventory: 'required',
     };
 
-    const message = ref('');
-    watch(isCompleted, (value) => {
-      if (!value) {
-        return;
-      }
+    const onSubmit = async (values: Product, actions: FormActions<Product>) => {
+      const { data } = await useSubmit(values);
+      emit('submit', data);
+      actions.resetForm();
+    };
 
-      if (error.value) {
-        message.value = 'Failed to create product';
-      } else {
-        message.value = 'Product created';
-        onReset();
-        emit('submit', data.value);
-      }
+    // const message = ref('');
+    // watch(isCompleted, (value) => {
+    //   if (!value) {
+    //     return;
+    //   }
 
-      useTimeout(() => {
-        message.value = '';
-      }, 3000);
-    });
+    //   if (error.value) {
+    //     message.value = 'Failed to create product';
+    //   } else {
+    //     message.value = 'Product created';
+    //     onReset();
+    //     emit('submit', data.value);
+    //   }
+
+    //   useTimeout(() => {
+    //     message.value = '';
+    //   }, 3000);
+    // });
 
     return {
-      product,
+      validationSchema,
       onSubmit,
-      onReset,
-      message,
-      error,
-      isValid,
-      isSubmitting,
     };
   },
 });

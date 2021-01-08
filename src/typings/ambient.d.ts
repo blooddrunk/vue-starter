@@ -1,11 +1,3 @@
-declare type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
-
-declare type FnReturningPromise = (...args: any[]) => Promise<any>;
-
-declare type PromiseType<P extends Promise<any>> = P extends Promise<infer T>
-  ? T
-  : never;
-
 declare const __DEV__: boolean;
 
 interface HTMLElement {

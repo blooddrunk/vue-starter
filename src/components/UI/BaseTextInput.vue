@@ -82,6 +82,7 @@ export default defineComponent({
     focus: null,
     blur: null,
     'update:modelValue': null,
+    change: null,
   },
 
   setup(props, { emit, slots }) {
@@ -109,6 +110,7 @@ export default defineComponent({
     );
     watchEffect(() => {
       emit('update:modelValue', innerValue.value);
+      emit('change', innerValue.value);
     });
 
     const isDirty = computed(

@@ -1,20 +1,18 @@
-import { ref, computed, Ref } from 'vue';
+import { ref, computed, unref, Ref } from 'vue';
 import { AxiosRequestConfig, CancelTokenSource, AxiosResponse } from 'axios';
 
+import { Refable } from '@/utils/typings';
 import axios from '@/utils/axios';
 
-type NonAxiosConfig = {
+type UseAxiosConfig = {
   immediate?: boolean;
 };
 
-type UseAxiosConfig = NonAxiosConfig & AxiosRequestConfig;
-
 export const useAxios = <T = unknown>(
-  requestConfig: UseAxiosConfig,
+  requestConfig: Refable<AxiosRequestConfig>,
   initialData: T,
-  { immediate = true }: NonAxiosConfig = {}
+  { immediate = true }: UseAxiosConfig = {}
 ) => {
-  // state
   const isLoading = ref(false);
   const isCompleted = ref(false);
   const error = ref<Error | null>(null);
@@ -34,9 +32,11 @@ export const useAxios = <T = unknown>(
   };
 
   const request = async () => {
+    const unwrappedConfig = unref(requestConfig);
+
     if (isLoading.value) {
       cancel(
-        `[userAxios]: '${requestConfig.url}' cancelling request due to duplicate call`
+        `[userAxios]: '${unwrappedConfig.url}' cancelling request due to duplicate call`
       );
       return;
     }
@@ -50,7 +50,7 @@ export const useAxios = <T = unknown>(
     try {
       response.value = await axios.request<T>({
         cancelToken: cancelSource.token,
-        ...requestConfig,
+        ...unwrappedConfig,
       });
 
       data.value = response.value.data;

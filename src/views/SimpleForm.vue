@@ -2,8 +2,6 @@
   <div>
     <ProductForm @submit="addProduct"></ProductForm>
 
-    <div v-if="submitError" class="tw-"></div>
-
     <SimpleList
       class="tw-mt-6"
       :items="products"
