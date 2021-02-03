@@ -4,15 +4,13 @@
   </component>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-import DefaultLayout from './layouts/Default';
-import EmptyLayout from './layouts/Empty';
-import ErrorLayout from './layouts/Error';
-
-// import { provideAxios } from '@/context/axios';
+import DefaultLayout from './layouts/Default.vue';
+import EmptyLayout from './layouts/Empty.vue';
+import ErrorLayout from './layouts/Error.vue';
 
 export default defineComponent({
   name: 'App',
